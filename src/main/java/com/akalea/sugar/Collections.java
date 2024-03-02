@@ -25,6 +25,28 @@ public interface Collections {
             .collect(Collectors.toList());
     }
 
+    public static <T> boolean any(List<T> objs, Function<T, Boolean> func) {
+        return exists(objs, func);
+    }
+
+    public static <T> boolean all(List<T> objs, Function<T, Boolean> func) {
+        return filter(objs, func).size() == objs.size();
+    }
+
+    public static <T> boolean exists(List<T> objs, Function<T, Boolean> func) {
+        return findFirst(objs, func) != null;
+    }
+
+    public static <T> T findFirst(List<T> objs, Function<T, Boolean> func) {
+        if (objs == null)
+            return null;
+        return objs
+            .stream()
+            .filter(o -> func.apply(o))
+            .findFirst()
+            .orElse(null);
+    }
+
     public static <T, R> List<R> map(List<T> objs, Function<T, R> func) {
         if (objs == null)
             return new ArrayList();
