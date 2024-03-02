@@ -64,12 +64,28 @@ public interface Collections {
             .orElse(null);
     }
 
+    public static <T extends Comparable<T>> T min(List objs, Function<Object, T> supplier) {
+        return min(
+            (List<T>) objs
+                .stream()
+                .map(o -> (T) supplier.apply(o))
+                .collect(Collectors.toList()));
+    }
+
     public static <T extends Comparable<T>> T max(List<T> objs) {
         return objs
             .stream()
             .sorted((a, b) -> -a.compareTo(b))
             .findFirst()
             .orElse(null);
+    }
+
+    public static <T extends Comparable<T>> T max(List objs, Function<Object, T> supplier) {
+        return max(
+            (List<T>) objs
+                .stream()
+                .map(o -> (T) supplier.apply(o))
+                .collect(Collectors.toList()));
     }
 
     public static <K, V> KeyValue<K, V> kv(K key, V value) {
