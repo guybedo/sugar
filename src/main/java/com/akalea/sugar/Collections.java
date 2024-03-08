@@ -2,8 +2,10 @@ package com.akalea.sugar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -139,6 +141,12 @@ public interface Collections {
         List<T> arrayList = new ArrayList<>();
         Stream.of(elements).forEach(e -> arrayList.add(e));
         return arrayList;
+    }
+    
+    public static <T> Set<T> set(T... elements) {
+        Set<T> set = new HashSet<>();
+        Stream.of(elements).forEach(e -> set.add(e));
+        return set;
     }
 
     public static <T> T first(List<T> elements) {
