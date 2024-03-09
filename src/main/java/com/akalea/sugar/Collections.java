@@ -1,6 +1,7 @@
 package com.akalea.sugar;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +56,15 @@ public interface Collections {
         return objs
             .stream()
             .map(o -> func.apply(o))
+            .collect(Collectors.toList());
+    }
+
+    public static <T> List<T> sorted(List<T> objs, Comparator<T> comp) {
+        if (objs == null)
+            return new ArrayList();
+        return objs
+            .stream()
+            .sorted(comp)
             .collect(Collectors.toList());
     }
 
