@@ -1,9 +1,11 @@
 package com.akalea.sugar;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import com.akalea.sugar.internal.Param;
 
@@ -25,8 +27,21 @@ public interface Pojos {
         return Optional.ofNullable(obj).orElseGet(supplier);
     }
 
-    public static <T> Param<T> param(String id, T value) {
+    public static <T> Param<T> p(String id, T value) {
         return new Param<T>().setId(id).setValue(value);
+    }
+
+    public static <T> T o(T obj, Param... params) {
+        Stream.of(params).forEach(p -> {
+            try {
+                Field field = obj.getClass().getField(p.getId());
+                field.setAccessible(true);
+                field.set(obj, p.getValue());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return obj;
     }
 
 }

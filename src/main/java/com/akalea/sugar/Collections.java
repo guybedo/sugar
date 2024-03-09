@@ -142,7 +142,7 @@ public interface Collections {
         Stream.of(elements).forEach(e -> arrayList.add(e));
         return arrayList;
     }
-    
+
     public static <T> Set<T> set(T... elements) {
         Set<T> set = new HashSet<>();
         Stream.of(elements).forEach(e -> set.add(e));
@@ -180,5 +180,18 @@ public interface Collections {
             zipped.add(new Pair<T1, T2>().setFirst(l1.get(i)).setSecond(l2.get(i)));
         }
         return zipped;
+    }
+
+    public static <T> List<T> concat(List<T> l1, List<T> l2) {
+        return list(l1, l2)
+            .stream()
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+    }
+
+    public static <T> List<T> append(List<T> l1, T e) {
+        List<T> list = new ArrayList<>(l1);
+        list.add(e);
+        return list;
     }
 }
