@@ -1,6 +1,7 @@
 package com.akalea.sugar;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.BaseStream;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -90,6 +92,10 @@ public interface Collections {
         return reversed;
     }
 
+    public static <T extends Comparable<T>> T min(T... objs) {
+        return min(list(objs));
+    }
+
     public static <T extends Comparable<T>> T min(List<T> objs) {
         return objs
             .stream()
@@ -98,15 +104,27 @@ public interface Collections {
             .orElse(null);
     }
 
-    public static <T extends Comparable<T>> T min(List objs, Function<Object, T> supplier) {
+    public static <T, R extends Comparable<R>> R minVal(List<T> objs, Function<T, R> supplier) {
         return min(
-            (List<T>) objs
+            (List<R>) objs
                 .stream()
-                .map(o -> (T) supplier.apply(o))
+                .map(o -> (R) supplier.apply(o))
                 .collect(Collectors.toList()));
     }
 
-    public static <T extends Comparable<T>> T max(List<T> objs) {
+    public static <T> T min(List<T> objs, Comparator<T> comp) {
+        return objs
+            .stream()
+            .sorted(comp)
+            .findFirst()
+            .orElse(null);
+    }
+
+    public static <T extends Comparable<T>> T max(T... objs) {
+        return max(list(objs));
+    }
+
+    public static <T extends Comparable<T>> T max(Collection<T> objs) {
         return objs
             .stream()
             .sorted((a, b) -> -a.compareTo(b))
@@ -114,12 +132,21 @@ public interface Collections {
             .orElse(null);
     }
 
-    public static <T extends Comparable<T>> T max(List objs, Function<Object, T> supplier) {
+    public static <T, R extends Comparable<R>> R maxVal(List<T> objs, Function<T, R> supplier) {
         return max(
-            (List<T>) objs
+            (List<R>) objs
                 .stream()
-                .map(o -> (T) supplier.apply(o))
+                .map(o -> (R) supplier.apply(o))
                 .collect(Collectors.toList()));
+    }
+
+    public static <T> T max(List<T> objs, Comparator<T> comp) {
+        List<T> sorted =
+            objs
+                .stream()
+                .sorted(comp)
+                .collect(Collectors.toList());
+        return sorted.get(sorted.size() - 1);
     }
 
     public static <K, V> KeyValue<K, V> kv(K key, V value) {
@@ -150,6 +177,18 @@ public interface Collections {
     public static <T> List<T> list(T... elements) {
         List<T> arrayList = new ArrayList<>();
         Stream.of(elements).forEach(e -> arrayList.add(e));
+        return arrayList;
+    }
+
+    public static <T> List<T> toList(BaseStream<T, ?> elements) {
+        List<T> arrayList = new ArrayList<>();
+        elements.iterator().forEachRemaining(e->arrayList.add((T) e));
+        return arrayList;
+    }
+
+    public static <T> List<T> list(List<T> elements) {
+        List<T> arrayList = new ArrayList<>();
+        arrayList.addAll(elements);
         return arrayList;
     }
 
