@@ -85,10 +85,10 @@ public interface Collections {
             .collect(Collectors.toList());
     }
 
-    public static <T> List<T> reversed(Collection<T> objs) {
-        List reversed = new ArrayList();
-        reversed.addAll(objs);
-        java.util.Collections.reverse(reversed);
+    public static <T> List<T> reversed(List<T> objs) {
+        List<T> reversed = new ArrayList<>();
+        for (int i = objs.size() - 1; i >= 0; i--)
+            reversed.add(objs.get(i));
         return reversed;
     }
 
