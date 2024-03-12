@@ -85,7 +85,7 @@ public interface Collections {
             .collect(Collectors.toList());
     }
 
-    public static <T extends Comparable<T>> List<T> reversed(List<T> objs) {
+    public static <T> List<T> reversed(Collection<T> objs) {
         List reversed = new ArrayList();
         reversed.addAll(objs);
         java.util.Collections.reverse(reversed);
@@ -112,16 +112,12 @@ public interface Collections {
                 .collect(Collectors.toList()));
     }
 
-    public static <T> T min(List<T> objs, Comparator<T> comp) {
+    public static <T> T min(Collection<T> objs, Comparator<T> comp) {
         return objs
             .stream()
             .sorted(comp)
             .findFirst()
             .orElse(null);
-    }
-
-    public static <T extends Comparable<T>> T max(T... objs) {
-        return max(list(objs));
     }
 
     public static <T extends Comparable<T>> T max(Collection<T> objs) {
@@ -132,6 +128,15 @@ public interface Collections {
             .orElse(null);
     }
 
+    public static <T> T max(Collection<T> objs, Comparator<T> comp) {
+        return first(
+            reversed(
+                objs
+                    .stream()
+                    .sorted(comp)
+                    .collect(Collectors.toList())));
+    }
+
     public static <T, R extends Comparable<R>> R maxVal(List<T> objs, Function<T, R> supplier) {
         return max(
             (List<R>) objs
@@ -140,13 +145,12 @@ public interface Collections {
                 .collect(Collectors.toList()));
     }
 
-    public static <T> T max(List<T> objs, Comparator<T> comp) {
-        List<T> sorted =
-            objs
-                .stream()
-                .sorted(comp)
-                .collect(Collectors.toList());
-        return sorted.get(sorted.size() - 1);
+    public static Float mean(List<Float> vals) {
+        return (float) vals
+            .stream()
+            .mapToDouble(v -> v)
+            .average()
+            .orElse(0);
     }
 
     public static <K, V> KeyValue<K, V> kv(K key, V value) {
@@ -182,7 +186,7 @@ public interface Collections {
 
     public static <T> List<T> toList(BaseStream<T, ?> elements) {
         List<T> arrayList = new ArrayList<>();
-        elements.iterator().forEachRemaining(e->arrayList.add((T) e));
+        elements.iterator().forEachRemaining(e -> arrayList.add((T) e));
         return arrayList;
     }
 
