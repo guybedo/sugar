@@ -24,6 +24,8 @@ public interface Pojos {
     }
 
     public static <T> T orElse(T obj, Supplier<T> supplier) {
+        if (supplier == null)
+            return orElse(obj, (T) null);
         return Optional.ofNullable(obj).orElseGet(supplier);
     }
 
