@@ -235,8 +235,8 @@ public interface Collections {
         return zipped;
     }
 
-    public static <T> List<T> concat(List<T> l1, List<T> l2) {
-        return list(l1, l2)
+    public static <T> List<T> concat(List<T>...l) {
+        return list(l)
             .stream()
             .flatMap(List::stream)
             .collect(Collectors.toList());

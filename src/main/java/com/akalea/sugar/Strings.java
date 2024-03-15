@@ -1,9 +1,15 @@
 package com.akalea.sugar;
 
-import java.util.List;
 import static com.akalea.sugar.Collections.*;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 public interface Strings {
+
+    public static String format(String str, Object... args) {
+        return String.format(str, args);
+    }
 
     public static String join(List<String> strings) {
         return join(strings, "");
@@ -22,7 +28,19 @@ public interface Strings {
         return buffer.toString();
     }
 
-    public static String format(String string, Object... params) {
-        return String.format(string, params);
+    public static int firstNonAlphanum(String str) {
+        return IntStream
+            .range(0, str.length())
+            .filter(i -> !Character.isLetterOrDigit(str.charAt(i)))
+            .findFirst()
+            .orElse(-1);
+    }
+
+    public static int firstAlphanum(String str) {
+        return IntStream
+            .range(0, str.length())
+            .filter(i -> Character.isLetterOrDigit(str.charAt(i)))
+            .findFirst()
+            .orElse(-1);
     }
 }
