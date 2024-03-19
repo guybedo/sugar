@@ -21,6 +21,10 @@ import com.akalea.sugar.internal.Pair;
 
 public interface Collections {
 
+    public static <K, T> T orElse(Map<K, Object> map, K key, T other) {
+        return map.containsKey(key) ? (T) map.get(key) : other;
+    }
+
     public static <T> List<T> filter(List<T> objs, Function<T, Boolean> func) {
         if (objs == null)
             return new ArrayList();
@@ -235,7 +239,7 @@ public interface Collections {
         return zipped;
     }
 
-    public static <T> List<T> concat(List<T>...l) {
+    public static <T> List<T> concat(List<T>... l) {
         return list(l)
             .stream()
             .flatMap(List::stream)

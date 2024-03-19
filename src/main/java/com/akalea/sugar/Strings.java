@@ -7,6 +7,10 @@ import java.util.stream.IntStream;
 
 public interface Strings {
 
+    public static boolean isEmpty(String str) {
+        return str == null || "".equals(str);
+    }
+
     public static String format(String str, Object... args) {
         return String.format(str, args);
     }
