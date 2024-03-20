@@ -149,6 +149,14 @@ public interface Collections {
                 .collect(Collectors.toList()));
     }
 
+    public static <T, R extends Comparable<R>> T max(List<T> objs, Function<T, R> supplier) {
+        return objs
+            .stream()
+            .sorted((a, b) -> -supplier.apply(a).compareTo(supplier.apply(b)))
+            .findFirst()
+            .orElse(null);
+    }
+
     public static Float mean(List<Float> vals) {
         return (float) vals
             .stream()
