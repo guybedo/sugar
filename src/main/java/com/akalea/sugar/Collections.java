@@ -190,6 +190,12 @@ public interface Collections {
         elements.stream().forEach(e -> func.accept(e));
     }
 
+    public static <T> List<T> list(Collection<T> collection) {
+        List<T> arrayList = new ArrayList<>();
+        arrayList.addAll(collection);
+        return arrayList;
+    }
+
     public static <T> List<T> list(T... elements) {
         List<T> arrayList = new ArrayList<>();
         Stream.of(elements).forEach(e -> arrayList.add(e));
@@ -212,6 +218,18 @@ public interface Collections {
         Set<T> set = new HashSet<>();
         Stream.of(elements).forEach(e -> set.add(e));
         return set;
+    }
+
+    public static <T> Set<T> set(Collection<T>... collections) {
+        Set<T> set = new HashSet<>();
+        Stream.of(collections).forEach(e -> set.addAll(e));
+        return set;
+    }
+
+    public static <T> Set<T> intersect(Set<T> a, Set<T> b) {
+        Set<T> intersection = set(a);
+        intersection.retainAll(b);
+        return intersection;
     }
 
     public static <T> T first(List<T> elements) {
