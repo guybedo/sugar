@@ -277,4 +277,10 @@ public interface Collections {
         list.add(e);
         return list;
     }
+    public static <T> List<T> prepend(List<T> l1, T e) {
+        List<T> list = new ArrayList<>();
+        list.add(e);
+        list.addAll(l1);
+        return list;
+    }
 }
