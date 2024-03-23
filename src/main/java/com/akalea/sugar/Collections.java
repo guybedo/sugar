@@ -1,6 +1,7 @@
 package com.akalea.sugar;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -214,6 +215,24 @@ public interface Collections {
         return arrayList;
     }
 
+    public static <T> List<List<T>> product(Collection<T>... collections) {
+        return product(list(collections));
+    }
+
+    public static <T> List<List<T>> product(List<Collection<T>> collections) {
+        if (collections.size() == 1)
+            return collections.get(0)
+                .stream()
+                .map(e -> list(e))
+                .collect(Collectors.toList());
+        List<List<T>> result = new ArrayList<>();
+        for (T elem : collections.get(0))
+            for (List<T> others : product(collections.subList(1, collections.size())))
+                result.add(append(others, elem));
+
+        return result;
+    }
+
     public static <T> Set<T> set(T... elements) {
         Set<T> set = new HashSet<>();
         Stream.of(elements).forEach(e -> set.add(e));
@@ -277,6 +296,7 @@ public interface Collections {
         list.add(e);
         return list;
     }
+
     public static <T> List<T> prepend(List<T> l1, T e) {
         List<T> list = new ArrayList<>();
         list.add(e);
