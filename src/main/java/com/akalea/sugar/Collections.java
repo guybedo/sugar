@@ -1,6 +1,7 @@
 package com.akalea.sugar;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -26,7 +27,7 @@ public interface Collections {
         return map.containsKey(key) ? (T) map.get(key) : other;
     }
 
-    public static <T> List<T> filter(List<T> objs, Function<T, Boolean> func) {
+    public static <T> List<T> filter(Collection<T> objs, Function<T, Boolean> func) {
         if (objs == null)
             return new ArrayList();
         return objs
@@ -35,19 +36,19 @@ public interface Collections {
             .collect(Collectors.toList());
     }
 
-    public static <T> boolean any(List<T> objs, Function<T, Boolean> func) {
+    public static <T> boolean any(Collection<T> objs, Function<T, Boolean> func) {
         return exists(objs, func);
     }
 
-    public static <T> boolean all(List<T> objs, Function<T, Boolean> func) {
+    public static <T> boolean all(Collection<T> objs, Function<T, Boolean> func) {
         return filter(objs, func).size() == objs.size();
     }
 
-    public static <T> boolean exists(List<T> objs, Function<T, Boolean> func) {
+    public static <T> boolean exists(Collection<T> objs, Function<T, Boolean> func) {
         return findFirst(objs, func) != null;
     }
 
-    public static <T> T findFirst(List<T> objs, Function<T, Boolean> func) {
+    public static <T> T findFirst(Collection<T> objs, Function<T, Boolean> func) {
         if (objs == null)
             return null;
         return objs
@@ -57,7 +58,7 @@ public interface Collections {
             .orElse(null);
     }
 
-    public static <T, R> List<R> map(List<T> objs, Function<T, R> func) {
+    public static <T, R> List<R> map(Collection<T> objs, Function<T, R> func) {
         if (objs == null)
             return new ArrayList();
         return objs
@@ -66,7 +67,17 @@ public interface Collections {
             .collect(Collectors.toList());
     }
 
-    public static <T> List<T> sorted(List<T> objs, Comparator<T> comp) {
+    public static <T, R> List<R> flatMap(Collection<T> objs, Function<T, Collection<R>> func) {
+        if (objs == null)
+            return new ArrayList();
+        return objs
+            .stream()
+            .map(o -> func.apply(o))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+    }
+
+    public static <T> List<T> sorted(Collection<T> objs, Comparator<T> comp) {
         if (objs == null)
             return new ArrayList();
         return objs
@@ -75,15 +86,15 @@ public interface Collections {
             .collect(Collectors.toList());
     }
 
-    public static <T extends Comparable<T>> List<T> asc(List<T> objs) {
+    public static <T extends Comparable<T>> List<T> asc(Collection<T> objs) {
         return sorted(objs, true);
     }
 
-    public static <T extends Comparable<T>> List<T> desc(List<T> objs) {
+    public static <T extends Comparable<T>> List<T> desc(Collection<T> objs) {
         return sorted(objs, false);
     }
 
-    public static <T extends Comparable<T>> List<T> sorted(List<T> objs, boolean asc) {
+    public static <T extends Comparable<T>> List<T> sorted(Collection<T> objs, boolean asc) {
         return objs
             .stream()
             .sorted((a, b) -> (asc ? 1 : -1) * a.compareTo(b))
@@ -101,7 +112,7 @@ public interface Collections {
         return min(list(objs));
     }
 
-    public static <T extends Comparable<T>> T min(List<T> objs) {
+    public static <T extends Comparable<T>> T min(Collection<T> objs) {
         return objs
             .stream()
             .sorted((a, b) -> a.compareTo(b))
@@ -109,7 +120,9 @@ public interface Collections {
             .orElse(null);
     }
 
-    public static <T, R extends Comparable<R>> R minVal(List<T> objs, Function<T, R> supplier) {
+    public static <T, R extends Comparable<R>> R minVal(
+        Collection<T> objs,
+        Function<T, R> supplier) {
         return min(
             (List<R>) objs
                 .stream()
@@ -142,7 +155,9 @@ public interface Collections {
                     .collect(Collectors.toList())));
     }
 
-    public static <T, R extends Comparable<R>> R maxVal(List<T> objs, Function<T, R> supplier) {
+    public static <T, R extends Comparable<R>> R maxVal(
+        Collection<T> objs,
+        Function<T, R> supplier) {
         return max(
             (List<R>) objs
                 .stream()
@@ -150,7 +165,7 @@ public interface Collections {
                 .collect(Collectors.toList()));
     }
 
-    public static <T, R extends Comparable<R>> T max(List<T> objs, Function<T, R> supplier) {
+    public static <T, R extends Comparable<R>> T max(Collection<T> objs, Function<T, R> supplier) {
         return objs
             .stream()
             .sorted((a, b) -> -supplier.apply(a).compareTo(supplier.apply(b)))
@@ -187,7 +202,7 @@ public interface Collections {
         return map;
     }
 
-    public static <T> void apply(List<T> elements, Consumer<T> func) {
+    public static <T> void apply(Collection<T> elements, Consumer<T> func) {
         elements.stream().forEach(e -> func.accept(e));
     }
 
@@ -206,12 +221,6 @@ public interface Collections {
     public static <T> List<T> toList(BaseStream<T, ?> elements) {
         List<T> arrayList = new ArrayList<>();
         elements.iterator().forEachRemaining(e -> arrayList.add((T) e));
-        return arrayList;
-    }
-
-    public static <T> List<T> list(List<T> elements) {
-        List<T> arrayList = new ArrayList<>();
-        arrayList.addAll(elements);
         return arrayList;
     }
 
@@ -245,6 +254,13 @@ public interface Collections {
         return set;
     }
 
+    public static <T, R> Set<R> set(Collection<T> collection, Function<T, R> func) {
+        return collection
+            .stream()
+            .map(e -> func.apply(e))
+            .collect(Collectors.toSet());
+    }
+
     public static <T> Set<T> intersect(Set<T> a, Set<T> b) {
         Set<T> intersection = set(a);
         intersection.retainAll(b);
@@ -257,6 +273,27 @@ public interface Collections {
 
     public static <T> T last(List<T> elements) {
         return elements.get(elements.size() - 1);
+    }
+
+    public static <T, R> long count(Collection<T> collection, Function<T, R> func) {
+        return collection
+            .stream()
+            .map(e -> func.apply(e))
+            .collect(Collectors.toSet())
+            .size();
+    }
+
+    public static <T, R> Map<R, Long> flatCount(
+        Collection<T> collection,
+        Function<T, Collection<R>> func) {
+        List<R> values = flatMap(collection, func);
+        return values
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    v -> v,
+                    v -> 1l,
+                    (c1, c2) -> c1 + c2));
     }
 
     public static <T> List<KeyValue<Integer, T>> enumerate(T... elements) {
@@ -274,6 +311,15 @@ public interface Collections {
 
     public static <T> void enumerate(List<T> elements, BiConsumer<Integer, T> func) {
         enumerate(elements).stream().forEach(e -> func.accept(e.getKey(), e.getValue()));
+    }
+
+    public static <T> List<List<T>> partition(List<T> elements, int size) {
+        List<List<T>> partitions = new ArrayList();
+        for (int i = 0; i < elements.size(); i += size) {
+            int toIdx = min(elements.size(), i + size);
+            partitions.add(elements.subList(i, toIdx));
+        }
+        return partitions;
     }
 
     public static <T1, T2> List<Pair<T1, T2>> zip(List<T1> l1, List<T2> l2) {
