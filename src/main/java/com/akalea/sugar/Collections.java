@@ -283,6 +283,26 @@ public interface Collections {
             .size();
     }
 
+    public static <T extends Number> T sum(Collection<T> collection) {
+        return (T) collection
+            .stream()
+            .reduce((a, b) -> add(a, b))
+            .orElse((T) (Float) 0f);
+    }
+
+    private static <T extends Number> T add(Number a, Number b) {
+        if (a instanceof Float || b instanceof Float) {
+            return (T) (Float) (a.floatValue() + b.floatValue());
+        }
+        if (a instanceof Double || b instanceof Double) {
+            return (T) (Double) (a.doubleValue() + b.doubleValue());
+        }
+        if (a instanceof Long || b instanceof Long) {
+            return (T) (Long) (a.longValue() + b.longValue());
+        }
+        return (T) (Integer) (a.intValue() + b.intValue());
+    }
+
     public static <T, R> Map<R, Long> flatCount(
         Collection<T> collection,
         Function<T, Collection<R>> func) {
