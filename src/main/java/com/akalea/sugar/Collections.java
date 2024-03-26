@@ -202,6 +202,12 @@ public interface Collections {
         return map;
     }
 
+    public static <T, R> Map<T, R> toMap(Collection<T> objs, Function<T, R> func) {
+        return objs
+            .stream()
+            .collect(Collectors.toMap(o -> o, o -> func.apply(o)));
+    }
+
     public static <T> void apply(Collection<T> elements, Consumer<T> func) {
         elements.stream().forEach(e -> func.accept(e));
     }
@@ -287,7 +293,7 @@ public interface Collections {
         return (T) collection
             .stream()
             .reduce((a, b) -> add(a, b))
-            .orElse((T) (Float) 0f);
+            .orElse((T) (Number) 0);
     }
 
     private static <T extends Number> T add(Number a, Number b) {
