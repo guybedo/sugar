@@ -58,6 +58,12 @@ public interface Collections {
             .orElse(null);
     }
 
+    public static <T> void forEach(Collection<T> objs, Consumer<T> func) {
+        objs
+            .stream()
+            .forEach(o -> func.accept(o));
+    }
+
     public static <T, R> List<R> map(Collection<T> objs, Function<T, R> func) {
         if (objs == null)
             return new ArrayList();
