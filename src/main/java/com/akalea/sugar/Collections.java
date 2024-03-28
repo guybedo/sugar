@@ -253,7 +253,7 @@ public interface Collections {
         List<List<T>> result = new ArrayList<>();
         for (T elem : collections.get(0))
             for (List<T> others : product(collections.subList(1, collections.size())))
-                result.add(append(others, elem));
+                result.add(prepend(others, elem));
 
         return result;
     }
