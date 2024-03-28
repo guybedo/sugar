@@ -1,7 +1,8 @@
 package com.akalea.sugar;
 
-import static com.akalea.sugar.Collections.*;
+import static com.akalea.sugar.Collections.enumerate;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -15,11 +16,11 @@ public interface Strings {
         return String.format(str, args);
     }
 
-    public static String join(List<String> strings) {
+    public static String join(Collection<String> strings) {
         return join(strings, "");
     }
 
-    public static String join(List<String> strings, String sep) {
+    public static String join(Collection<String> strings, String sep) {
         StringBuffer buffer = new StringBuffer();
         int size = strings.size();
         enumerate(

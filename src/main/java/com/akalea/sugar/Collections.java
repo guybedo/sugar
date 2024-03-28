@@ -332,17 +332,19 @@ public interface Collections {
         return enumerate(list(elements));
     }
 
-    public static <T> List<KeyValue<Integer, T>> enumerate(List<T> elements) {
+    public static <T> List<KeyValue<Integer, T>> enumerate(Collection<T> elements) {
         List<KeyValue<Integer, T>> enumeration = new ArrayList();
-        for (int i = 0; i < elements.size(); i++) {
-            T t = elements.get(i);
-            enumeration.add(new KeyValue<Integer, T>().setKey(i).setValue(t));
+        int i = 0;
+        for (T elem : elements) {
+            enumeration.add(new KeyValue<Integer, T>().setKey(i++).setValue(elem));
         }
         return enumeration;
     }
 
-    public static <T> void enumerate(List<T> elements, BiConsumer<Integer, T> func) {
-        enumerate(elements).stream().forEach(e -> func.accept(e.getKey(), e.getValue()));
+    public static <T> void enumerate(Collection<T> elements, BiConsumer<Integer, T> func) {
+        enumerate(elements)
+            .stream()
+            .forEach(e -> func.accept(e.getKey(), e.getValue()));
     }
 
     public static <T> List<List<T>> partition(List<T> elements, int size) {
