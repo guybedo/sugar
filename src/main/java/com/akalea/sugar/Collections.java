@@ -152,6 +152,10 @@ public interface Collections {
             .orElse(null);
     }
 
+    public static <T extends Comparable<T>> T max(T... objs) {
+        return max(list(objs));
+    }
+
     public static <T> T max(Collection<T> objs, Comparator<T> comp) {
         return first(
             reversed(
