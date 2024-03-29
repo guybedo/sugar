@@ -11,7 +11,7 @@ import com.akalea.sugar.internal.Param;
 
 public interface Pojos {
 
-    public static <T, R> void ifNotNull(T obj, Consumer<T> func) {
+    public static <T, R> void ifPresent(T obj, Consumer<T> func) {
         Optional.ofNullable(obj).ifPresent(o -> func.accept(o));
     }
 
