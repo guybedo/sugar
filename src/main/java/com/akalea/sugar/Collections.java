@@ -1,5 +1,6 @@
 package com.akalea.sugar;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import java.util.Arrays;
@@ -17,6 +18,8 @@ import java.util.function.Function;
 import java.util.stream.BaseStream;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.management.RuntimeErrorException;
 
 import com.akalea.sugar.internal.KeyValue;
 import com.akalea.sugar.internal.Pair;
@@ -200,14 +203,24 @@ public interface Collections {
     }
 
     public static <T, R> Map<T, R> hashmap(KeyValue<T, R>... keyValues) {
-        return map(new HashMap<>(), keyValues);
+        return add(new HashMap<>(), keyValues);
     }
 
     public static <T, R> Map<T, R> treemap(KeyValue<T, R>... keyValues) {
-        return map(new TreeMap<>(), keyValues);
+        return add(new TreeMap<>(), keyValues);
     }
 
-    public static <T, R, M extends Map> Map<T, R> map(M map, KeyValue<T, R>... keyValues) {
+    public static <T, R, M extends Map> Map<T, R> map(M map) {
+        try {
+            Map newMap = map.getClass().getDeclaredConstructor().newInstance();
+            newMap.putAll(map);
+            return newMap;
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating new map", e);
+        }
+    }
+
+    public static <T, R, M extends Map> Map<T, R> add(M map, KeyValue<T, R>... keyValues) {
         Stream.of(keyValues).forEach(kv -> map.put(kv.getKey(), kv.getValue()));
         return map;
     }
