@@ -1,9 +1,6 @@
 package com.akalea.sugar;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,8 +16,6 @@ import java.util.stream.BaseStream;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.management.RuntimeErrorException;
-
 import com.akalea.sugar.internal.KeyValue;
 import com.akalea.sugar.internal.Pair;
 
@@ -28,6 +23,10 @@ public interface Collections {
 
     public static <K, T> T orElse(Map<K, Object> map, K key, T other) {
         return map.containsKey(key) ? (T) map.get(key) : other;
+    }
+
+    public static <T> List<T> notNull(Collection<T> objs) {
+        return filter(objs, o -> o != null);
     }
 
     public static <T> List<T> filter(Collection<T> objs, Function<T, Boolean> func) {
@@ -296,11 +295,21 @@ public interface Collections {
         return intersection;
     }
 
+    public static <T> Set<T> difference(Set<T> a, Set<T> b) {
+        Set<T> intersection = set(a);
+        intersection.removeAll(b);
+        return intersection;
+    }
+
     public static <T> T first(List<T> elements) {
+        if (elements == null || elements.isEmpty())
+            return null;
         return elements.get(0);
     }
 
     public static <T> T last(List<T> elements) {
+        if (elements == null || elements.isEmpty())
+            return null;
         return elements.get(elements.size() - 1);
     }
 
