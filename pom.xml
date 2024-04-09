@@ -7,10 +7,10 @@
 
 	<groupId>com.akalea</groupId>
 	<artifactId>sugar</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 
 	<name>sugar</name>
-	<description>A simple sugar.</description>
+	<description>Syntactic sugar for Java</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,18 +18,63 @@
 		<maven.compiler.target>9</maven.compiler.target>
 	</properties>
 
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>
+				http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	
+	<scm>
+        <connection>scm:git:git://github.com/guybedo/sugar.git</connection>
+        <developerConnection>scm:git:git@github.com:guybedo/sugar.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>http://github.com/guybedo/sugar/tree/master</url>
+    </scm>
+    <issueManagement>
+        <system>Github</system>
+        <url>http://github.com/guybedo/sugar</url>
+    </issueManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
-		<pluginManagement><!-- lock down plugins versions to avoid using Maven
-			defaults (may be moved to parent pom) -->
+		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.2.1</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.2.0</version>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 				<plugin>
 					<artifactId>maven-clean-plugin</artifactId>
 					<version>3.1.0</version>
