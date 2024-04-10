@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.BaseStream;
@@ -73,6 +74,15 @@ public interface Collections {
             .stream()
             .map(o -> func.apply(o))
             .collect(Collectors.toList());
+    }
+
+    public static <T> T reduce(Collection<T> objs, BiFunction<T, T, T> func) {
+        if (objs == null)
+            return null;
+        return objs
+            .stream()
+            .reduce((a, b) -> func.apply(a, b))
+            .orElse(null);
     }
 
     public static <T, R> List<R> flatMap(Collection<T> objs, Function<T, Collection<R>> func) {
