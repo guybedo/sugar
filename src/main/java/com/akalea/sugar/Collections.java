@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.BaseStream;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,33 +30,33 @@ public interface Collections {
         return filter(objs, o -> o != null);
     }
 
-    public static <T> List<T> filter(Collection<T> objs, Function<T, Boolean> func) {
+    public static <T> List<T> filter(Collection<T> objs, Predicate<T> func) {
         if (objs == null)
             return new ArrayList();
         return objs
             .stream()
-            .filter(o -> func.apply(o))
+            .filter(o -> func.test(o))
             .collect(Collectors.toList());
     }
 
-    public static <T> boolean any(Collection<T> objs, Function<T, Boolean> func) {
+    public static <T> boolean any(Collection<T> objs, Predicate<T> func) {
         return exists(objs, func);
     }
 
-    public static <T> boolean all(Collection<T> objs, Function<T, Boolean> func) {
+    public static <T> boolean all(Collection<T> objs, Predicate<T> func) {
         return filter(objs, func).size() == objs.size();
     }
 
-    public static <T> boolean exists(Collection<T> objs, Function<T, Boolean> func) {
+    public static <T> boolean exists(Collection<T> objs, Predicate<T> func) {
         return findFirst(objs, func) != null;
     }
 
-    public static <T> T findFirst(Collection<T> objs, Function<T, Boolean> func) {
+    public static <T> T findFirst(Collection<T> objs, Predicate<T> func) {
         if (objs == null)
             return null;
         return objs
             .stream()
-            .filter(o -> func.apply(o))
+            .filter(o -> func.test(o))
             .findFirst()
             .orElse(null);
     }
