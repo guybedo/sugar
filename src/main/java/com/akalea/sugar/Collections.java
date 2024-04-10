@@ -48,10 +48,10 @@ public interface Collections {
     }
 
     public static <T> boolean exists(Collection<T> objs, Function<T, Boolean> func) {
-        return findFirst(objs, func) != null;
+        return first(objs, func) != null;
     }
 
-    public static <T> T findFirst(Collection<T> objs, Function<T, Boolean> func) {
+    public static <T> T first(Collection<T> objs, Function<T, Boolean> func) {
         if (objs == null)
             return null;
         return objs
