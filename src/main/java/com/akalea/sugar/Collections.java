@@ -95,6 +95,15 @@ public interface Collections {
             .collect(Collectors.toList());
     }
 
+    public static <T> List<T> sorted(Collection<T> objs) {
+        if (objs == null)
+            return new ArrayList();
+        return objs
+            .stream()
+            .sorted()
+            .collect(Collectors.toList());
+    }
+
     public static <T> List<T> sorted(Collection<T> objs, Comparator<T> comp) {
         if (objs == null)
             return new ArrayList();
