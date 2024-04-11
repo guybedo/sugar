@@ -1,9 +1,8 @@
 package com.akalea.sugar;
 
-import static com.akalea.sugar.Collections.enumerate;
+import static com.akalea.sugar.Collections.*;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.IntStream;
 
 public interface Strings {
