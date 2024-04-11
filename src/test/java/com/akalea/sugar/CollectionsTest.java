@@ -15,10 +15,10 @@ public class CollectionsTest {
 
         Assert.assertEquals((Integer) 4, max(integers));
         Assert.assertEquals((Integer) 3, max(integers, i -> i % 4));
-        Assert.assertEquals((Integer) 5, max(map(integers, i -> i + 1)));
-        
+        Assert.assertEquals((Integer) 5, max((List<Integer>) map(integers, i -> i + 1)));
+
         Assert.assertEquals((Integer) 1, min(integers));
         Assert.assertEquals((Integer) 4, min(integers, i -> i % 4));
-        Assert.assertEquals((Integer) 2, min(map(integers, i -> i + 1)));
+        Assert.assertEquals((Integer) 2, min((List<Integer>) map(integers, i -> i + 1)));
     }
 }

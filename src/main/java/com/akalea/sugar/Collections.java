@@ -69,7 +69,7 @@ public interface Collections {
 
     public static <T, R> List<R> map(Collection<T> objs, Function<T, R> func) {
         if (objs == null)
-            return new ArrayList();
+            return new ArrayList<R>();
         return objs
             .stream()
             .map(o -> func.apply(o))
@@ -128,7 +128,7 @@ public interface Collections {
             .findFirst()
             .orElse(null);
     }
-    
+
     public static <T, R extends Comparable<R>> T min(Collection<T> objs, Function<T, R> supplier) {
         return objs
             .stream()
