@@ -106,7 +106,7 @@ public interface Collections {
     public static <T extends Comparable<T>> List<T> sorted(Collection<T> objs, boolean asc) {
         return objs
             .stream()
-            .sorted((a, b) -> (asc ? 1 : -1) * a.compareTo(b))
+            .sorted((a, b) -> asc ? a.compareTo(b) : b.compareTo(a))
             .collect(Collectors.toList());
     }
 
@@ -125,6 +125,14 @@ public interface Collections {
         return objs
             .stream()
             .sorted((a, b) -> a.compareTo(b))
+            .findFirst()
+            .orElse(null);
+    }
+    
+    public static <T, R extends Comparable<R>> T min(Collection<T> objs, Function<T, R> supplier) {
+        return objs
+            .stream()
+            .sorted((a, b) -> supplier.apply(a).compareTo(supplier.apply(b)))
             .findFirst()
             .orElse(null);
     }
@@ -150,7 +158,7 @@ public interface Collections {
     public static <T extends Comparable<T>> T max(Collection<T> objs) {
         return objs
             .stream()
-            .sorted((a, b) -> -a.compareTo(b))
+            .sorted((a, b) -> b.compareTo(a))
             .findFirst()
             .orElse(null);
     }
@@ -181,7 +189,7 @@ public interface Collections {
     public static <T, R extends Comparable<R>> T max(Collection<T> objs, Function<T, R> supplier) {
         return objs
             .stream()
-            .sorted((a, b) -> -supplier.apply(a).compareTo(supplier.apply(b)))
+            .sorted((a, b) -> supplier.apply(b).compareTo(supplier.apply(a)))
             .findFirst()
             .orElse(null);
     }
