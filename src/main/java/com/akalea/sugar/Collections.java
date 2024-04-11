@@ -308,6 +308,27 @@ public interface Collections {
         return elements.get(0);
     }
 
+    public static <T> T first(List<T> elements, Predicate<T> predicate) {
+        if (elements == null || elements.isEmpty())
+            return null;
+        for (T t : elements) {
+            if (predicate.test(t))
+                return t;
+        }
+        return null;
+    }
+
+    public static <T> T last(List<T> elements, Predicate<T> predicate) {
+        if (elements == null || elements.isEmpty())
+            return null;
+        for (int i = elements.size() - 1; i >= 0; i--) {
+            T t = elements.get(i);
+            if (predicate.test(t))
+                return t;
+        }
+        return null;
+    }
+
     public static <T> T last(List<T> elements) {
         if (elements == null || elements.isEmpty())
             return null;
