@@ -122,18 +122,20 @@ public interface Collections {
     }
 
     public static <T extends Comparable<T>> T min(Collection<T> objs) {
-        return objs
-            .stream()
-            .sorted((a, b) -> a.compareTo(b))
-            .findFirst()
-            .orElse(null);
+        return min(
+            objs,
+            new Comparator<T>() {
+                @Override
+                public int compare(T o1, T o2) {
+                    return o1.compareTo(o2);
+                }
+            });
     }
 
     public static <T, R extends Comparable<R>> T min(Collection<T> objs, Function<T, R> supplier) {
         return objs
             .stream()
-            .sorted((a, b) -> supplier.apply(a).compareTo(supplier.apply(b)))
-            .findFirst()
+            .min((a, b) -> supplier.apply(a).compareTo(supplier.apply(b)))
             .orElse(null);
     }
 
@@ -150,17 +152,19 @@ public interface Collections {
     public static <T> T min(Collection<T> objs, Comparator<T> comp) {
         return objs
             .stream()
-            .sorted(comp)
-            .findFirst()
+            .min(comp)
             .orElse(null);
     }
 
     public static <T extends Comparable<T>> T max(Collection<T> objs) {
-        return objs
-            .stream()
-            .sorted((a, b) -> b.compareTo(a))
-            .findFirst()
-            .orElse(null);
+        return max(
+            objs,
+            new Comparator<T>() {
+                @Override
+                public int compare(T o1, T o2) {
+                    return o1.compareTo(o2);
+                }
+            });
     }
 
     public static <T extends Comparable<T>> T max(T... objs) {
@@ -168,12 +172,10 @@ public interface Collections {
     }
 
     public static <T> T max(Collection<T> objs, Comparator<T> comp) {
-        return first(
-            reversed(
-                objs
-                    .stream()
-                    .sorted(comp)
-                    .collect(Collectors.toList())));
+        return objs
+            .stream()
+            .max(comp)
+            .orElse(null);
     }
 
     public static <T, R extends Comparable<R>> R maxVal(
@@ -189,8 +191,7 @@ public interface Collections {
     public static <T, R extends Comparable<R>> T max(Collection<T> objs, Function<T, R> supplier) {
         return objs
             .stream()
-            .sorted((a, b) -> supplier.apply(b).compareTo(supplier.apply(a)))
-            .findFirst()
+            .max((a, b) -> supplier.apply(a).compareTo(supplier.apply(b)))
             .orElse(null);
     }
 
