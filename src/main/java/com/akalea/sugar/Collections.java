@@ -16,12 +16,27 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.BaseStream;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.akalea.sugar.internal.KeyValue;
 import com.akalea.sugar.internal.Pair;
 
 public interface Collections {
+
+    public static List<Integer> iRange(int from, int toExclusive) {
+        return IntStream
+            .range(0, toExclusive)
+            .boxed()
+            .collect(Collectors.toList());
+    }
+
+    public static List<Integer> iRange(int from, int toExclusive, int step) {
+        List<Integer> values = new ArrayList();
+        for (int i = from; i < toExclusive; i += step)
+            values.add(i);
+        return values;
+    }
 
     public static <K, T> T orElse(Map<K, Object> map, K key, T other) {
         return map.containsKey(key) ? (T) map.get(key) : other;
