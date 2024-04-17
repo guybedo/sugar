@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -76,6 +77,19 @@ public interface Collections {
             .collect(Collectors.toList());
     }
 
+    public static <T> T reduce(Collection<T> objs, BiFunction<T, T, T> func) {
+        if (objs == null)
+            return null;
+        return objs
+            .stream()
+            .reduce((a, b) -> func.apply(a, b))
+            .orElse(null);
+    }
+
+    public static <T> List<T> flatMap(List<List<T>> objs) {
+        return objs.stream().flatMap(List::stream).collect(Collectors.toList());
+    }
+
     public static <T, R> List<R> flatMap(Collection<T> objs, Function<T, Collection<R>> func) {
         if (objs == null)
             return new ArrayList();
@@ -83,6 +97,15 @@ public interface Collections {
             .stream()
             .map(o -> func.apply(o))
             .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+    }
+
+    public static <T> List<T> sorted(Collection<T> objs) {
+        if (objs == null)
+            return new ArrayList();
+        return objs
+            .stream()
+            .sorted()
             .collect(Collectors.toList());
     }
 
@@ -238,6 +261,15 @@ public interface Collections {
         return objs
             .stream()
             .collect(Collectors.toMap(o -> o, o -> func.apply(o)));
+    }
+
+    public static <T, K, V> Map<K, V> toMap(
+        Collection<T> objs,
+        Function<T, K> keys,
+        Function<T, V> values) {
+        return objs
+            .stream()
+            .collect(Collectors.toMap(o -> keys.apply(o), o -> values.apply(o)));
     }
 
     public static <T> void apply(Collection<T> elements, Consumer<T> func) {
