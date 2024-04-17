@@ -63,22 +63,17 @@ public class Parallel {
         List<Runnable> tasks =
             map(
                 enumerate(objects),
-                o -> {
-                    return (Runnable) () -> {
-                        results.put(o.getKey(), function.apply(o.getValue()));
-                    };
-                });
+                o -> () -> results.put(o.getKey(), function.apply(o.getValue())));
         execute(tasks, threadCount);
         return map(sorted(results.keySet()), i -> results.get(i));
     }
 
+    public static <T> void pEach(List<T> objects, Consumer<T> function) {
+        pEach(objects, function, Runtime.getRuntime().availableProcessors());
+    }
+
     public static <T> void pEach(List<T> objects, Consumer<T> function, int threadCount) {
-        List<Runnable> tasks =
-            map(
-                objects,
-                o -> (Runnable) () -> {
-                    function.accept(o);
-                });
+        List<Runnable> tasks = map(objects, o -> () -> function.accept(o));
         execute(tasks, threadCount);
     }
 }
