@@ -287,6 +287,35 @@ public interface Collections {
             .collect(Collectors.toMap(o -> keys.apply(o), o -> values.apply(o)));
     }
 
+    public static <T, K> Map<K, Integer> counts(Collection<T> objs, Function<T, K> keys) {
+        return sums(objs, keys, k -> 1);
+    }
+
+    public static <T, K> Map<K, Integer> sums(
+        Collection<T> objs,
+        Function<T, K> keys,
+        Function<T, Integer> values) {
+        return toMap(
+            objs,
+            keys,
+            values,
+            (c1, c2) -> c1 + c2);
+    }
+
+    public static <T, K, V> Map<K, V> toMap(
+        Collection<T> objs,
+        Function<T, K> keys,
+        Function<T, V> values,
+        BiFunction<V, V, V> reduce) {
+        return objs
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    o -> keys.apply(o),
+                    o -> values.apply(o),
+                    (v1, v2) -> reduce.apply(v1, v2)));
+    }
+
     public static <T> void apply(Collection<T> elements, Consumer<T> func) {
         elements.stream().forEach(e -> func.accept(e));
     }
