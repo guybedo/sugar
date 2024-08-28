@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class Parallel {
 
@@ -52,6 +53,16 @@ public class Parallel {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static <T> List<T> compute(List<Supplier<T>> functions, int threadCount) {
+        Map<Integer, T> results = java.util.Collections.synchronizedMap(new HashMap());
+        List<Runnable> tasks =
+            map(
+                enumerate(functions),
+                f -> () -> results.put(f.getKey(), f.getValue().get()));
+        execute(tasks, threadCount);
+        return map(sorted(results.keySet()), i -> results.get(i));
     }
 
     public static <T, R> List<R> pMap(List<T> objects, Function<T, R> function) {
