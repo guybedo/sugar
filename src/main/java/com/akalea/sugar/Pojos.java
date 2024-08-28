@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -17,36 +18,60 @@ import com.akalea.sugar.internal.Param;
 
 public interface Pojos {
 
+    public static List<Field> getAllInheritedFields(Object o) {
+        return getAllInheritedFields(o.getClass());
+    }
+
+    public static List<Field> getAllInheritedFields(Class clazz) {
+        List<Field> fields = list(clazz.getDeclaredFields());
+        ifPresent(clazz.getSuperclass(), c -> fields.addAll(getAllInheritedFields(c)));
+        return fields;
+    }
+
     public static Map<String, Object> toMap(Object o) {
+        return toMap(o, null);
+    }
+
+    public static Map<String, Object> toMap(
+        Object o,
+        Map<Class, Function<Object, Object>> converters) {
         if (o == null)
             return null;
         Map<String, Object> dict = new HashMap<>();
         forEach(
-            list(o.getClass().getDeclaredFields()),
+            getAllInheritedFields(o),
             field -> {
                 if (Modifier.isStatic(field.getModifiers()))
                     return;
                 Object fieldValue = get(o, field);
-                dict.put(field.getName(), nodeValue(fieldValue));
+                dict.put(field.getName(), nodeValue(fieldValue, converters));
             });
         return dict;
     }
 
-    private static Object nodeValue(Object o) {
+    private static Object nodeValue(
+        Object o,
+        Map<Class, Function<Object, Object>> converters) {
         if (o == null)
             return null;
+
+        if (converters.containsKey(o.getClass()))
+            return converters.get(o.getClass()).apply(o);
+
         if (isSimpleType(o.getClass())) {
             return o;
-        } else if (isMapType(o.getClass())) {
+        }
+
+        if (isMapType(o.getClass())) {
             return Collections.toMap(
                 ((Map) o).entrySet(),
                 e -> String.valueOf(((Map.Entry) e).getKey()),
-                e -> nodeValue(((Map.Entry) e).getValue()));
-        } else if (isCollectionType(o.getClass())) {
-            return map((Collection) o, v -> nodeValue(v));
-        } else {
-            return toMap(o);
+                e -> nodeValue(((Map.Entry) e).getValue(), converters));
         }
+        if (isCollectionType(o.getClass())) {
+            return map((Collection) o, v -> nodeValue(v, converters));
+        }
+        return toMap(o);
     }
 
     private static boolean isMapType(Class<?> clazz) {
