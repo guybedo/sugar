@@ -287,6 +287,24 @@ public interface Collections {
             .collect(Collectors.toMap(o -> keys.apply(o), o -> values.apply(o)));
     }
 
+    public static <T, K> Map<K, List<T>> groupBy(
+        Collection<T> objs,
+        Function<T, K> keys) {
+        return objs
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    o -> keys.apply(o),
+                    o -> (List<T>) list(o),
+                    (l1, l2) -> (List<T>) concat(l1, l2)));
+    }
+    
+    public static <T, K> Map<K, List<T>> apply(
+        Map<K, List<T>> data,
+        Function<List<T>, List<T>> func) {
+        return toMap(data.keySet(), k->func.apply(data.get(k)));
+    }
+
     public static <T, K> Map<K, Integer> counts(Collection<T> objs, Function<T, K> keys) {
         return sums(objs, keys, k -> 1);
     }
