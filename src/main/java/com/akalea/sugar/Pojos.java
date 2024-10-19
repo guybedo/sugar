@@ -126,6 +126,10 @@ public interface Pojos {
             return orElse(obj, (T) null);
         return Optional.ofNullable(obj).orElseGet(supplier);
     }
+    
+    public static <T, R> R apply(T obj, Function<T, R> map) {
+        return Optional.ofNullable(obj).map(o -> map.apply(o)).orElse(null);
+    }
 
     public static <T> Param<T> p(String id, T value) {
         return new Param<T>().setId(id).setValue(value);

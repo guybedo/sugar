@@ -277,6 +277,12 @@ public interface Collections {
             .stream()
             .collect(Collectors.toMap(o -> o, o -> func.apply(o)));
     }
+    
+    public static <T, K> Map<K, T> index(Collection<T> objs, Function<T, K> keyMapper) {
+        return objs
+            .stream()
+            .collect(Collectors.toMap(o -> keyMapper.apply(o), o -> o));
+    }
 
     public static <T, K, V> Map<K, V> toMap(
         Collection<T> objs,
