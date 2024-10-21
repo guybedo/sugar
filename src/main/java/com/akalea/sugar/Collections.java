@@ -277,7 +277,7 @@ public interface Collections {
             .stream()
             .collect(Collectors.toMap(o -> o, o -> func.apply(o)));
     }
-    
+
     public static <T, K> Map<K, T> index(Collection<T> objs, Function<T, K> keyMapper) {
         return objs
             .stream()
@@ -304,11 +304,11 @@ public interface Collections {
                     o -> (List<T>) list(o),
                     (l1, l2) -> (List<T>) concat(l1, l2)));
     }
-    
+
     public static <T, K> Map<K, List<T>> apply(
         Map<K, List<T>> data,
         Function<List<T>, List<T>> func) {
-        return toMap(data.keySet(), k->func.apply(data.get(k)));
+        return toMap(data.keySet(), k -> func.apply(data.get(k)));
     }
 
     public static <T, K> Map<K, Integer> counts(Collection<T> objs, Function<T, K> keys) {
@@ -350,16 +350,23 @@ public interface Collections {
         return arrayList;
     }
 
+    public static <T> List<T> list(Iterable<T> collection) {
+        List<T> list = new ArrayList<>();
+        for (T elem : collection)
+            list.add(elem);
+        return list;
+    }
+
     public static <T> List<T> list(T... elements) {
-        List<T> arrayList = new ArrayList<>();
-        Stream.of(elements).forEach(e -> arrayList.add(e));
-        return arrayList;
+        List<T> list = new ArrayList<>();
+        Stream.of(elements).forEach(e -> list.add(e));
+        return list;
     }
 
     public static <T> List<T> toList(BaseStream<T, ?> elements) {
-        List<T> arrayList = new ArrayList<>();
-        elements.iterator().forEachRemaining(e -> arrayList.add((T) e));
-        return arrayList;
+        List<T> list = new ArrayList<>();
+        elements.iterator().forEachRemaining(e -> list.add((T) e));
+        return list;
     }
 
     public static <T> List<List<T>> product(Collection<T>... collections) {
