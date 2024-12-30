@@ -547,4 +547,20 @@ public interface Collections {
         list.addAll(l1);
         return list;
     }
+
+    public static String str(Map<String, Object> map, String name) {
+        return (String) map.get(name);
+    }
+
+    public static Float flt(Map<String, Object> map, String name) {
+        return (Float) map.get(name);
+    }
+
+    public static Integer intg(Map<String, Object> map, String name) {
+        return (Integer) map.get(name);
+    }
+
+    public static Map map(Map<String, Object> map, String name) {
+        return (Map) map.get(name);
+    }
 }
