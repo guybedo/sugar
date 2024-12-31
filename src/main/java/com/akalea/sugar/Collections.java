@@ -387,6 +387,42 @@ public interface Collections {
         return result;
     }
 
+    public static List<Map<String, Object>> combinations(Map<String, List> parameterSpace) {
+        if (parameterSpace.isEmpty())
+            return list();
+        List<String> parameters = list(parameterSpace.keySet());
+        String p0 = first(parameters);
+        List p0Values = parameterSpace.get(p0);
+        List allCombinations =
+            flatMap(
+                p0Values,
+                v -> {
+                    Map combination = new HashMap();
+                    combination.put(p0, v);
+                    Map others = removeKey(parameterSpace, p0);
+                    if(others.isEmpty())
+                        return list(combination);
+                    return map(
+                        combinations(others),
+                        other -> merge(combination, (Map) other));
+                });
+        return allCombinations;
+    }
+
+    public static Map merge(Map m1, Map m2) {
+        Map merged = new HashMap();
+        merged.putAll(m1);
+        merged.putAll(m2);
+        return merged;
+    }
+
+    public static Map removeKey(Map m1, String key) {
+        Map removed = new HashMap();
+        removed.putAll(m1);
+        removed.remove(key);
+        return removed;
+    }
+
     public static <T> Set<T> set(T... elements) {
         Set<T> set = new HashSet<>();
         Stream.of(elements).forEach(e -> set.add(e));

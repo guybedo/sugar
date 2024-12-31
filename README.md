@@ -52,7 +52,7 @@ Maven
 <dependency>
     <groupId>com.akalea</groupId>
     <artifactId>sugar</artifactId>
-    <version>0.0.11</version>
+    <version>0.0.13</version>
 </dependency>
 ```
 
