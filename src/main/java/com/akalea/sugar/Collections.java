@@ -486,6 +486,13 @@ public interface Collections {
             return null;
         return elements.get(elements.size() - 1);
     }
+    
+    public static <T> List<T> last(List<T> elements, int count) {
+        if (elements == null || elements.isEmpty())
+            return null;
+        count = Math.min(elements.size(), count);
+        return elements.subList(elements.size()-count, elements.size());
+    }
 
     public static <T, R> long count(Collection<T> collection, Function<T, R> func) {
         return collection
