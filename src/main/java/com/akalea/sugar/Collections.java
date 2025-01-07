@@ -241,6 +241,10 @@ public interface Collections {
             .orElse(0);
     }
 
+    public static <T> Float mean(Collection<T> objs, Function<T, Float> supplier) {
+        return mean(map(objs, supplier));
+    }
+
     public static <K, V> KeyValue<K, V> kv(K key, V value) {
         return new KeyValue<K, V>().setKey(key).setValue(value);
     }
@@ -400,7 +404,7 @@ public interface Collections {
                     Map combination = new HashMap();
                     combination.put(p0, v);
                     Map others = removeKey(parameterSpace, p0);
-                    if(others.isEmpty())
+                    if (others.isEmpty())
                         return list(combination);
                     return map(
                         combinations(others),
@@ -486,12 +490,12 @@ public interface Collections {
             return null;
         return elements.get(elements.size() - 1);
     }
-    
+
     public static <T> List<T> last(List<T> elements, int count) {
         if (elements == null || elements.isEmpty())
             return null;
         count = Math.min(elements.size(), count);
-        return elements.subList(elements.size()-count, elements.size());
+        return elements.subList(elements.size() - count, elements.size());
     }
 
     public static <T, R> long count(Collection<T> collection, Function<T, R> func) {
