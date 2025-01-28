@@ -7,7 +7,7 @@
 
 	<groupId>com.akalea</groupId>
 	<artifactId>sugar</artifactId>
-	<version>0.0.13</version>
+	<version>0.0.14</version>
 
 	<name>sugar</name>
 	<description>Syntactic sugar for Java</description>

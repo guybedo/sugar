@@ -617,6 +617,19 @@ public interface Collections {
         return (Integer) map.get(name);
     }
 
+    public static Integer asInt(Map<String, Object> map, String name) {
+        Object value = map.get(name);
+        if (value instanceof Integer)
+            return (Integer) value;
+        if (value instanceof Float)
+            return ((Float) value).intValue();
+        if (value instanceof Double)
+            return ((Double) value).intValue();
+        if (value instanceof String)
+            return Integer.parseInt((String) value);
+        throw new RuntimeException("Can't convert to int");
+    }
+
     public static Map map(Map<String, Object> map, String name) {
         return (Map) map.get(name);
     }
