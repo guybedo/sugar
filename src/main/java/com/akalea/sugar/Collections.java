@@ -605,6 +605,25 @@ public interface Collections {
         return list;
     }
 
+    public static Boolean bool(Map<String, Object> map, String name) {
+        return (Boolean) map.get(name);
+    }
+
+    public static Boolean asBool(Map<String, Object> map, String name) {
+        Object value = map.get(name);
+        if (value == null)
+            return null;
+        if (value instanceof Boolean)
+            return (Boolean) value;
+        if (value instanceof Integer && value.equals(0))
+            return false;
+        if (value instanceof Integer && value.equals(1))
+            return true;
+        if (value instanceof String)
+            return Boolean.parseBoolean((String) value);
+        throw new RuntimeException("Can't convert to boolean");
+    }
+
     public static String str(Map<String, Object> map, String name) {
         return (String) map.get(name);
     }
@@ -619,6 +638,8 @@ public interface Collections {
 
     public static Integer asInt(Map<String, Object> map, String name) {
         Object value = map.get(name);
+        if (value == null)
+            return null;
         if (value instanceof Integer)
             return (Integer) value;
         if (value instanceof Float)
