@@ -55,6 +55,17 @@ public class Parallel {
         }
     }
 
+    private static void execute(List<Runnable> tasks, ExecutorService executor) {
+        List<Future> futures = map(tasks, t -> executor.submit(t));
+        forEach(futures, f -> {
+            try {
+                f.get();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     public static <T> List<T> compute(List<Supplier<T>> functions, int threadCount) {
         Map<Integer, T> results = java.util.Collections.synchronizedMap(new HashMap());
         List<Runnable> tasks =
@@ -76,6 +87,19 @@ public class Parallel {
                 enumerate(objects),
                 o -> () -> results.put(o.getKey(), function.apply(o.getValue())));
         execute(tasks, threadCount);
+        return map(sorted(results.keySet()), i -> results.get(i));
+    }
+
+    public static <T, R> List<R> pMap(
+        List<T> objects,
+        Function<T, R> function,
+        ExecutorService executor) {
+        Map<Integer, R> results = java.util.Collections.synchronizedMap(new HashMap());
+        List<Runnable> tasks =
+            map(
+                enumerate(objects),
+                o -> () -> results.put(o.getKey(), function.apply(o.getValue())));
+        execute(tasks, executor);
         return map(sorted(results.keySet()), i -> results.get(i));
     }
 

@@ -115,6 +115,14 @@ public interface Collections {
             .collect(Collectors.toList());
     }
 
+    public static <T> List<T> shuffled(Collection<T> objs) {
+        if (objs == null)
+            return new ArrayList();
+        List<T> shuffled = list(objs);
+        java.util.Collections.shuffle(shuffled);
+        return shuffled;
+    }
+
     public static <T> List<T> sorted(Collection<T> objs) {
         if (objs == null)
             return new ArrayList();
