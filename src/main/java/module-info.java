@@ -1,5 +1,5 @@
 module com.akalea.sugar {
     exports com.akalea.sugar;
-    // KeyValue is used in return types
+    // Internal types used in return types and as functional building blocks
     exports com.akalea.sugar.internal;
 }

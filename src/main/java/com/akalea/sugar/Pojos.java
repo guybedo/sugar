@@ -55,7 +55,7 @@ public interface Pojos {
         if (o == null)
             return null;
 
-        if (converters.containsKey(o.getClass()))
+        if (converters != null && converters.containsKey(o.getClass()))
             return converters.get(o.getClass()).apply(o);
 
         if (isSimpleType(o.getClass())) {
@@ -146,6 +146,210 @@ public interface Pojos {
             }
         });
         return obj;
+    }
+
+    // ==================== Null-Safety Enhancements ====================
+
+    /**
+     * Returns the first non-null value from the arguments.
+     */
+    @SafeVarargs
+    public static <T> T coalesce(T... values) {
+        for (T value : values) {
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the value if condition is true, otherwise null.
+     */
+    public static <T> Optional<T> when(boolean condition, Supplier<T> supplier) {
+        return condition ? Optional.ofNullable(supplier.get()) : Optional.empty();
+    }
+
+    /**
+     * Returns the value if condition is false, otherwise null.
+     */
+    public static <T> Optional<T> unless(boolean condition, Supplier<T> supplier) {
+        return when(!condition, supplier);
+    }
+
+    /**
+     * Executes consumer if condition is true.
+     */
+    public static void when(boolean condition, Runnable runnable) {
+        if (condition) {
+            runnable.run();
+        }
+    }
+
+    /**
+     * Executes consumer if condition is false.
+     */
+    public static void unless(boolean condition, Runnable runnable) {
+        when(!condition, runnable);
+    }
+
+    /**
+     * Returns true if the object is null.
+     */
+    public static boolean isNull(Object obj) {
+        return obj == null;
+    }
+
+    /**
+     * Returns true if the object is not null.
+     */
+    public static boolean isNotNull(Object obj) {
+        return obj != null;
+    }
+
+    /**
+     * Returns the value if not null, otherwise throws the given exception.
+     */
+    public static <T, X extends Throwable> T requireNonNull(T obj, Supplier<X> exceptionSupplier) throws X {
+        if (obj == null) {
+            throw exceptionSupplier.get();
+        }
+        return obj;
+    }
+
+    /**
+     * Returns the value if not null, otherwise throws IllegalArgumentException with message.
+     */
+    public static <T> T requireNonNull(T obj, String message) {
+        if (obj == null) {
+            throw new IllegalArgumentException(message);
+        }
+        return obj;
+    }
+
+    /**
+     * Wraps a value in an Optional.
+     */
+    public static <T> Optional<T> opt(T obj) {
+        return Optional.ofNullable(obj);
+    }
+
+    /**
+     * Safely gets a nested property using a chain of functions.
+     * Returns empty Optional if any step returns null.
+     */
+    public static <T, R> Optional<R> safeGet(T obj, Function<T, R> getter) {
+        if (obj == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.ofNullable(getter.apply(obj));
+        } catch (NullPointerException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Safely gets a nested property with two levels of nesting.
+     */
+    public static <T, R1, R2> Optional<R2> safeGet(T obj, Function<T, R1> getter1, Function<R1, R2> getter2) {
+        return safeGet(obj, getter1).flatMap(r -> safeGet(r, getter2));
+    }
+
+    /**
+     * Safely gets a nested property with three levels of nesting.
+     */
+    public static <T, R1, R2, R3> Optional<R3> safeGet(
+            T obj,
+            Function<T, R1> getter1,
+            Function<R1, R2> getter2,
+            Function<R2, R3> getter3) {
+        return safeGet(obj, getter1, getter2).flatMap(r -> safeGet(r, getter3));
+    }
+
+    /**
+     * Chains multiple operations, short-circuiting on null.
+     */
+    public static <T, R> R chain(T obj, Function<T, R> func) {
+        if (obj == null) {
+            return null;
+        }
+        return func.apply(obj);
+    }
+
+    /**
+     * Chains multiple operations with two steps.
+     */
+    public static <T, R1, R2> R2 chain(T obj, Function<T, R1> func1, Function<R1, R2> func2) {
+        R1 r1 = chain(obj, func1);
+        return chain(r1, func2);
+    }
+
+    /**
+     * Chains multiple operations with three steps.
+     */
+    public static <T, R1, R2, R3> R3 chain(
+            T obj,
+            Function<T, R1> func1,
+            Function<R1, R2> func2,
+            Function<R2, R3> func3) {
+        R2 r2 = chain(obj, func1, func2);
+        return chain(r2, func3);
+    }
+
+    /**
+     * Returns the result of the function if obj is not null, otherwise returns defaultValue.
+     */
+    public static <T, R> R mapOrDefault(T obj, Function<T, R> mapper, R defaultValue) {
+        if (obj == null) {
+            return defaultValue;
+        }
+        R result = mapper.apply(obj);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * Applies a side-effect function if the value is not null, then returns the value.
+     */
+    public static <T> T tap(T obj, Consumer<T> consumer) {
+        if (obj != null) {
+            consumer.accept(obj);
+        }
+        return obj;
+    }
+
+    /**
+     * Transforms the value using the function and returns both original and transformed.
+     */
+    public static <T, R> com.akalea.sugar.internal.Pair<T, R> withTransform(T obj, Function<T, R> transformer) {
+        return new com.akalea.sugar.internal.Pair<T, R>()
+            .setFirst(obj)
+            .setSecond(obj != null ? transformer.apply(obj) : null);
+    }
+
+    /**
+     * Returns true if the object equals any of the provided values.
+     */
+    @SafeVarargs
+    public static <T> boolean equalsAny(T obj, T... values) {
+        if (obj == null) {
+            for (T value : values) {
+                if (value == null) return true;
+            }
+            return false;
+        }
+        for (T value : values) {
+            if (obj.equals(value)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the object does not equal any of the provided values.
+     */
+    @SafeVarargs
+    public static <T> boolean equalsNone(T obj, T... values) {
+        return !equalsAny(obj, values);
     }
 
 }
