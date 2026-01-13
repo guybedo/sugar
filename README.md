@@ -28,7 +28,7 @@ String first = first(names);
 <dependency>
     <groupId>com.akalea</groupId>
     <artifactId>sugar</artifactId>
-    <version>0.0.15</version>
+    <version>0.0.16</version>
 </dependency>
 ```
 
