@@ -271,6 +271,10 @@ public interface Collections {
         return hashmap(keyValues);
     }
 
+    public static <T, R> Map<T, R> hashmap(Map<T, R> value) {
+        return new HashMap<>(value);
+    }
+
     public static <T, R> Map<T, R> hashmap(KeyValue<T, R>... keyValues) {
         return add(new HashMap<>(), keyValues);
     }
