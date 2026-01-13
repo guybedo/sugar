@@ -272,4 +272,254 @@ public interface Numbers {
             return defaultValue;
         }
     }
+
+    // ==================== New Number Operations ====================
+
+    /**
+     * Returns the greatest common divisor of two numbers.
+     */
+    public static long gcd(long a, long b) {
+        a = Math.abs(a);
+        b = Math.abs(b);
+        while (b != 0) {
+            long temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
+    /**
+     * Returns the greatest common divisor of two numbers.
+     */
+    public static int gcd(int a, int b) {
+        return (int) gcd((long) a, (long) b);
+    }
+
+    /**
+     * Returns the least common multiple of two numbers.
+     */
+    public static long lcm(long a, long b) {
+        if (a == 0 || b == 0)
+            return 0;
+        return Math.abs(a / gcd(a, b) * b);
+    }
+
+    /**
+     * Returns the least common multiple of two numbers.
+     */
+    public static int lcm(int a, int b) {
+        return (int) lcm((long) a, (long) b);
+    }
+
+    /**
+     * Returns true if the number is prime.
+     */
+    public static boolean isPrime(long n) {
+        if (n <= 1)
+            return false;
+        if (n <= 3)
+            return true;
+        if (n % 2 == 0 || n % 3 == 0)
+            return false;
+        for (long i = 5; i * i <= n; i += 6) {
+            if (n % i == 0 || n % (i + 2) == 0)
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns true if the number is prime.
+     */
+    public static boolean isPrime(int n) {
+        return isPrime((long) n);
+    }
+
+    /**
+     * Returns true if two doubles are close within epsilon.
+     */
+    public static boolean closeTo(double a, double b, double epsilon) {
+        return Math.abs(a - b) <= epsilon;
+    }
+
+    /**
+     * Returns true if two floats are close within epsilon.
+     */
+    public static boolean closeTo(float a, float b, float epsilon) {
+        return Math.abs(a - b) <= epsilon;
+    }
+
+    /**
+     * Calculates percentage: (part / whole) * 100.
+     */
+    public static double percentage(double part, double whole) {
+        if (whole == 0)
+            return 0;
+        return (part / whole) * 100;
+    }
+
+    /**
+     * Applies percentage: (percent / 100) * value.
+     */
+    public static double percentOf(double percent, double value) {
+        return (percent / 100) * value;
+    }
+
+    /**
+     * Returns the factorial of n.
+     */
+    public static long factorial(int n) {
+        if (n < 0)
+            throw new IllegalArgumentException("Factorial not defined for negative numbers");
+        if (n <= 1)
+            return 1;
+        long result = 1;
+        for (int i = 2; i <= n; i++) {
+            result *= i;
+        }
+        return result;
+    }
+
+    /**
+     * Returns the nth Fibonacci number.
+     */
+    public static long fibonacci(int n) {
+        if (n <= 0)
+            return 0;
+        if (n == 1)
+            return 1;
+        long a = 0, b = 1;
+        for (int i = 2; i <= n; i++) {
+            long temp = a + b;
+            a = b;
+            b = temp;
+        }
+        return b;
+    }
+
+    /**
+     * Returns true if the value is positive.
+     */
+    public static boolean isPositive(double n) {
+        return n > 0;
+    }
+
+    /**
+     * Returns true if the value is negative.
+     */
+    public static boolean isNegative(double n) {
+        return n < 0;
+    }
+
+    /**
+     * Returns true if the value is zero.
+     */
+    public static boolean isZero(double n) {
+        return n == 0;
+    }
+
+    /**
+     * Returns the absolute value.
+     */
+    public static double abs(double n) {
+        return Math.abs(n);
+    }
+
+    /**
+     * Returns the absolute value.
+     */
+    public static int abs(int n) {
+        return Math.abs(n);
+    }
+
+    /**
+     * Returns the absolute value.
+     */
+    public static long abs(long n) {
+        return Math.abs(n);
+    }
+
+    /**
+     * Returns the power of a number.
+     */
+    public static double pow(double base, double exponent) {
+        return Math.pow(base, exponent);
+    }
+
+    /**
+     * Returns the square root.
+     */
+    public static double sqrt(double n) {
+        return Math.sqrt(n);
+    }
+
+    /**
+     * Returns the minimum of two values.
+     */
+    public static int min(int a, int b) {
+        return Math.min(a, b);
+    }
+
+    /**
+     * Returns the minimum of two values.
+     */
+    public static long min(long a, long b) {
+        return Math.min(a, b);
+    }
+
+    /**
+     * Returns the minimum of two values.
+     */
+    public static double min(double a, double b) {
+        return Math.min(a, b);
+    }
+
+    /**
+     * Returns the maximum of two values.
+     */
+    public static int max(int a, int b) {
+        return Math.max(a, b);
+    }
+
+    /**
+     * Returns the maximum of two values.
+     */
+    public static long max(long a, long b) {
+        return Math.max(a, b);
+    }
+
+    /**
+     * Returns the maximum of two values.
+     */
+    public static double max(double a, double b) {
+        return Math.max(a, b);
+    }
+
+    /**
+     * Constrains a value to be a multiple of step, rounding down.
+     */
+    public static int quantize(int value, int step) {
+        if (step <= 0)
+            return value;
+        return (value / step) * step;
+    }
+
+    /**
+     * Constrains a value to be a multiple of step, rounding down.
+     */
+    public static double quantize(double value, double step) {
+        if (step <= 0)
+            return value;
+        return Math.floor(value / step) * step;
+    }
+
+    /**
+     * Returns the sum of values from 1 to n.
+     */
+    public static long sumTo(int n) {
+        if (n <= 0)
+            return 0;
+        return (long) n * (n + 1) / 2;
+    }
 }

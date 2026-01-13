@@ -559,6 +559,325 @@ Pair<String, Integer> mapped = pair.mapFirst(String::toUpperCase);
 
 ---
 
+## Lazy Evaluation
+
+Defer expensive computations until needed.
+
+```java
+import com.akalea.sugar.internal.Lazy;
+
+// Create a lazy value
+Lazy<Config> config = Lazy.of(() -> loadExpensiveConfig());
+
+// Value is computed on first access
+Config c = config.get();  // Computed here
+Config c2 = config.get(); // Cached, not recomputed
+
+// Check if evaluated
+config.isEvaluated();  // true after first get()
+
+// Transform lazily (computation deferred)
+Lazy<String> configName = config.map(Config::getName);
+
+// Safe access without triggering evaluation
+String name = config.getOrElse("default");  // Returns default if not yet evaluated
+
+// Convert to Try for error handling
+Try<Config> tryConfig = config.toTry();
+```
+
+---
+
+## Range
+
+Represent and work with numeric ranges.
+
+```java
+import com.akalea.sugar.internal.Range;
+
+// Create ranges
+Range<Integer> closed = Range.closed(1, 10);    // [1, 10]
+Range<Integer> open = Range.open(1, 10);        // (1, 10)
+Range<Integer> halfOpen = Range.closedOpen(1, 10);  // [1, 10)
+
+// Unbounded ranges
+Range<Integer> atLeast = Range.atLeast(5);      // [5, +∞)
+Range<Integer> lessThan = Range.lessThan(10);   // (-∞, 10)
+
+// Check containment
+closed.contains(5);      // true
+closed.contains(11);     // false
+closed.containsAll(list(1, 5, 10));  // true
+
+// Range operations
+Range<Integer> r1 = Range.closed(1, 10);
+Range<Integer> r2 = Range.closed(5, 15);
+r1.overlaps(r2);                    // true
+r1.encloses(Range.closed(3, 7));    // true
+r1.intersection(r2);                // [5, 10]
+r1.span(r2);                        // [1, 15]
+
+// Convert to list
+List<Integer> nums = Range.toList(Range.closed(1, 5));  // [1, 2, 3, 4, 5]
+List<Integer> evens = Range.toList(Range.closed(0, 10), 2);  // [0, 2, 4, 6, 8, 10]
+```
+
+---
+
+## Pattern Matching
+
+Expressive conditional logic with the Match utility.
+
+```java
+import com.akalea.sugar.Match;
+
+// Match exact values
+String result = Match.of(statusCode)
+    .when(200, () -> "OK")
+    .when(404, () -> "Not Found")
+    .when(500, () -> "Server Error")
+    .otherwise(() -> "Unknown");
+
+// Match with predicates
+String size = Match.of(value)
+    .when(x -> x > 100, () -> "Large")
+    .when(x -> x > 10, () -> "Medium")
+    .when(x -> x > 0, () -> "Small")
+    .otherwise(() -> "Zero or negative");
+
+// Match null values
+String display = Match.of(user)
+    .whenNull(() -> "Anonymous")
+    .when(u -> u.isAdmin(), u -> "Admin: " + u.getName())
+    .otherwise(u -> u.getName());
+
+// Match by type
+String desc = Match.of(value)
+    .whenType(String.class, s -> "String: " + s)
+    .whenType(Integer.class, i -> "Integer: " + i)
+    .whenType(List.class, l -> "List of " + l.size())
+    .otherwise(() -> "Unknown type");
+
+// Match multiple values
+String category = Match.of(code)
+    .whenAny(() -> "Success", 200, 201, 204)
+    .whenAny(() -> "Client Error", 400, 401, 403, 404)
+    .otherwise(() -> "Other");
+
+// Match ranges
+String grade = Match.of(score)
+    .whenInRange(90, 100, () -> "A")
+    .whenInRange(80, 89, () -> "B")
+    .whenInRange(70, 79, () -> "C")
+    .otherwise(() -> "F");
+
+// Throw on no match
+String required = Match.of(value)
+    .when(1, () -> "One")
+    .otherwiseThrow(() -> new IllegalArgumentException("Invalid value"));
+```
+
+---
+
+## Dates
+
+Comprehensive date and time utilities.
+
+```java
+import static com.akalea.sugar.Dates.*;
+
+// Current date/time
+LocalDateTime now = now();
+LocalDate today = today();
+
+// Parsing with defaults
+LocalDate date = parseDate("2024-01-15", "yyyy-MM-dd", LocalDate.now());
+LocalDateTime dt = parseIsoDateTime("2024-01-15T10:30:00", null);
+
+// Formatting
+String formatted = formatDate(today, "dd/MM/yyyy");  // "15/01/2024"
+
+// Duration calculations
+long days = daysBetween(startDate, endDate);
+long months = monthsBetween(startDate, endDate);
+long hours = hoursBetween(startTime, endTime);
+
+// Date arithmetic
+LocalDate nextWeek = addDays(today, 7);
+LocalDate nextMonth = addMonths(today, 1);
+LocalDateTime later = addHours(now, 3);
+
+// Boundaries
+LocalDateTime dayStart = startOfDay(today);   // 00:00:00
+LocalDateTime dayEnd = endOfDay(today);       // 23:59:59.999
+LocalDate monthStart = startOfMonth(today);
+LocalDate monthEnd = endOfMonth(today);
+LocalDate yearStart = startOfYear(today);
+LocalDate weekStart = startOfWeek(today);     // Monday
+
+// Predicates
+isToday(date);      // true if date is today
+isYesterday(date);  // true if date was yesterday
+isTomorrow(date);   // true if date is tomorrow
+isWeekend(date);    // true if Saturday or Sunday
+isWeekday(date);    // true if Monday-Friday
+isFuture(date);     // true if after today
+isPast(date);       // true if before today
+isBetween(date, start, end);  // inclusive check
+isLeapYear(date);   // true if leap year
+
+// Human-readable relative time
+humanize(Duration.ofHours(3));      // "3 hours ago"
+humanize(Duration.ofDays(2));       // "2 days ago"
+humanize(LocalDate.now().minusDays(1));  // "yesterday"
+
+// Utilities
+int days = daysInMonth(date);       // 28, 29, 30, or 31
+int quarter = quarter(date);        // 1, 2, 3, or 4
+DayOfWeek dow = dayOfWeek(date);    // MONDAY, etc.
+
+// Conversions
+long millis = toEpochMillis(dateTime);
+LocalDateTime dt = fromEpochMillis(millis);
+```
+
+---
+
+## Additional Collections Features
+
+### Statistics
+```java
+// Statistical operations
+Double med = median(list(1, 2, 3, 4, 5));       // 3.0
+Double var = variance(list(1, 2, 3, 4, 5));     // 2.0
+Double std = stdDev(list(1, 2, 3, 4, 5));       // ~1.41
+
+// Frequency counting
+Map<String, Long> counts = frequencies(list("a", "b", "a", "c", "a"));
+// {a=3, b=1, c=1}
+```
+
+### Partitioning
+```java
+// Split by predicate
+Pair<List<Integer>, List<Integer>> parts = partition(numbers, n -> n > 0);
+List<Integer> positive = parts.getFirst();
+List<Integer> nonPositive = parts.getSecond();
+
+// Split at index
+Pair<List<T>, List<T>> halves = splitAt(list, 5);
+
+// Split at first non-matching
+Pair<List<Integer>, List<Integer>> span = span(list, n -> n < 10);
+```
+
+### Set Operations
+```java
+Set<T> combined = union(set1, set2);
+Set<T> symDiff = symmetricDifference(set1, set2);  // In either but not both
+```
+
+### Collection Predicates
+```java
+containsAny(collection, list("a", "b"));   // true if any element present
+containsNone(collection, list("x", "y"));  // true if no elements present
+containsAll(collection, list("a", "b"));   // true if all elements present
+```
+
+---
+
+## Additional Strings Features
+
+### Text Processing
+```java
+List<String> lineList = lines("line1\nline2\nline3");  // Split by newlines
+List<String> wordList = words("hello world");          // Split by whitespace
+
+String indented = indent("hello\nworld", 4);   // Add 4 spaces to each line
+String dedented = dedent("    hello\n    world");  // Remove common indent
+
+String wrapped = wrap("Long text that needs wrapping", 20);  // Word wrap
+```
+
+### Slug and Masking
+```java
+String slug = slugify("Hello World!");  // "hello-world"
+String masked = mask("1234567890", 2, 2);  // "12******90"
+String masked2 = mask("secret", 1, 1, '#');  // "s####t"
+```
+
+### Character Checks
+```java
+isNumeric("123");        // true
+isAlpha("abc");          // true
+isAlphanumeric("abc123"); // true
+isLowerCase("hello");    // true
+isUpperCase("HELLO");    // true
+```
+
+### Additional String Utils
+```java
+String centered = center("hi", 10, '-');  // "----hi----"
+String title = titleCase("hello world");  // "Hello World"
+String inits = initials("John Doe");      // "JD"
+String common = commonPrefix(list("prefix_a", "prefix_b"));  // "prefix_"
+String abbrev = abbreviate("Long text here", 10);  // "Long..."
+```
+
+---
+
+## Additional Numbers Features
+
+### Math Utilities
+```java
+long g = gcd(48, 18);      // 6 (greatest common divisor)
+long l = lcm(4, 6);        // 12 (least common multiple)
+boolean prime = isPrime(17);  // true
+
+long fact = factorial(5);  // 120
+long fib = fibonacci(10);  // 55
+```
+
+### Comparisons
+```java
+boolean close = closeTo(0.1 + 0.2, 0.3, 0.0001);  // true (floating point safe)
+```
+
+### Percentages
+```java
+double pct = percentage(25, 100);  // 25.0
+double val = percentOf(20, 150);   // 30.0 (20% of 150)
+```
+
+---
+
+## Additional Files Features
+
+### File Operations
+```java
+copy("/source/file.txt", "/dest/file.txt");
+move("/old/path.txt", "/new/path.txt");
+deleteRecursively("/dir/to/delete");  // Deletes directory and all contents
+```
+
+### Path Utilities
+```java
+String ext = extension("/path/to/file.txt");   // "txt"
+String base = baseName("/path/to/file.txt");   // "file"
+long bytes = size("/path/to/file.txt");
+```
+
+### Additional Operations
+```java
+touch("/path/to/file.txt");  // Create or update modification time
+List<Path> allFiles = listFilesRecursively("/dir");
+byte[] data = readBytes("/path/to/binary.dat");
+writeBytes("/path/to/output.dat", data);
+boolean empty = isEmpty("/path/to/check");  // true if file is 0 bytes or dir is empty
+```
+
+---
+
 ## Real-World Examples
 
 ### Processing a CSV File

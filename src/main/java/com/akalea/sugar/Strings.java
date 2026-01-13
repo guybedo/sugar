@@ -351,4 +351,336 @@ public interface Strings {
     public static String strip(String str) {
         return str == null ? null : str.strip();
     }
+
+    // ==================== New String Operations ====================
+
+    /**
+     * Splits a string into lines.
+     */
+    public static List<String> lines(String str) {
+        if (str == null)
+            return new ArrayList<>();
+        return list(str.split("\\R"));
+    }
+
+    /**
+     * Splits a string into words (by whitespace).
+     */
+    public static List<String> words(String str) {
+        if (str == null || str.trim().isEmpty())
+            return new ArrayList<>();
+        return list(str.trim().split("\\s+"));
+    }
+
+    /**
+     * Indents each line by the specified number of spaces.
+     */
+    public static String indent(String str, int spaces) {
+        if (str == null)
+            return null;
+        String prefix = repeat(" ", spaces);
+        return join(map(lines(str), line -> prefix + line), "\n");
+    }
+
+    /**
+     * Removes common leading whitespace from all lines.
+     */
+    public static String dedent(String str) {
+        if (str == null)
+            return null;
+        List<String> linesList = lines(str);
+        if (linesList.isEmpty())
+            return str;
+
+        int minIndent = Integer.MAX_VALUE;
+        for (String line : linesList) {
+            if (line.trim().isEmpty())
+                continue;
+            int indent = 0;
+            for (char c : line.toCharArray()) {
+                if (c == ' ')
+                    indent++;
+                else if (c == '\t')
+                    indent += 4;
+                else
+                    break;
+            }
+            minIndent = Math.min(minIndent, indent);
+        }
+
+        if (minIndent == Integer.MAX_VALUE || minIndent == 0)
+            return str;
+
+        final int removeIndent = minIndent;
+        return join(map(linesList, line -> {
+            if (line.length() <= removeIndent)
+                return "";
+            int charsToRemove = 0;
+            int spacesRemoved = 0;
+            for (char c : line.toCharArray()) {
+                if (spacesRemoved >= removeIndent)
+                    break;
+                if (c == ' ') {
+                    spacesRemoved++;
+                    charsToRemove++;
+                } else if (c == '\t') {
+                    spacesRemoved += 4;
+                    charsToRemove++;
+                } else {
+                    break;
+                }
+            }
+            return line.substring(charsToRemove);
+        }), "\n");
+    }
+
+    /**
+     * Word wraps text at the specified width.
+     */
+    public static String wrap(String str, int width) {
+        if (str == null || width <= 0)
+            return str;
+        StringBuilder result = new StringBuilder();
+        int lineLength = 0;
+        for (String word : words(str)) {
+            if (lineLength + word.length() > width && lineLength > 0) {
+                result.append("\n");
+                lineLength = 0;
+            }
+            if (lineLength > 0) {
+                result.append(" ");
+                lineLength++;
+            }
+            result.append(word);
+            lineLength += word.length();
+        }
+        return result.toString();
+    }
+
+    /**
+     * Creates a URL-friendly slug from a string.
+     */
+    public static String slugify(String str) {
+        if (str == null)
+            return null;
+        return str.toLowerCase()
+            .replaceAll("[^a-z0-9\\s-]", "")
+            .replaceAll("\\s+", "-")
+            .replaceAll("-+", "-")
+            .replaceAll("^-|-$", "");
+    }
+
+    /**
+     * Masks part of a string, keeping visible characters at start and end.
+     */
+    public static String mask(String str, int visibleStart, int visibleEnd) {
+        return mask(str, visibleStart, visibleEnd, '*');
+    }
+
+    /**
+     * Masks part of a string with a specified mask character.
+     */
+    public static String mask(String str, int visibleStart, int visibleEnd, char maskChar) {
+        if (str == null)
+            return null;
+        int len = str.length();
+        if (visibleStart + visibleEnd >= len)
+            return str;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(str.substring(0, visibleStart));
+        for (int i = visibleStart; i < len - visibleEnd; i++) {
+            sb.append(maskChar);
+        }
+        sb.append(str.substring(len - visibleEnd));
+        return sb.toString();
+    }
+
+    /**
+     * Returns true if the string contains only digits.
+     */
+    public static boolean isNumeric(String str) {
+        if (isEmpty(str))
+            return false;
+        return str.chars().allMatch(Character::isDigit);
+    }
+
+    /**
+     * Returns true if the string contains only letters.
+     */
+    public static boolean isAlpha(String str) {
+        if (isEmpty(str))
+            return false;
+        return str.chars().allMatch(Character::isLetter);
+    }
+
+    /**
+     * Returns true if the string contains only letters and digits.
+     */
+    public static boolean isAlphanumeric(String str) {
+        if (isEmpty(str))
+            return false;
+        return str.chars().allMatch(Character::isLetterOrDigit);
+    }
+
+    /**
+     * Returns true if all letters in the string are lowercase.
+     */
+    public static boolean isLowerCase(String str) {
+        if (isEmpty(str))
+            return false;
+        return str.chars().filter(Character::isLetter).allMatch(Character::isLowerCase);
+    }
+
+    /**
+     * Returns true if all letters in the string are uppercase.
+     */
+    public static boolean isUpperCase(String str) {
+        if (isEmpty(str))
+            return false;
+        return str.chars().filter(Character::isLetter).allMatch(Character::isUpperCase);
+    }
+
+    /**
+     * Centers a string within the specified width.
+     */
+    public static String center(String str, int width, char padChar) {
+        if (str == null)
+            str = "";
+        if (str.length() >= width)
+            return str;
+        int totalPad = width - str.length();
+        int leftPad = totalPad / 2;
+        int rightPad = totalPad - leftPad;
+        return repeat(String.valueOf(padChar), leftPad) + str + repeat(String.valueOf(padChar), rightPad);
+    }
+
+    /**
+     * Replaces the first occurrence of a search string.
+     */
+    public static String replaceFirst(String str, String search, String replacement) {
+        if (str == null || search == null)
+            return str;
+        return str.replaceFirst(Pattern.quote(search), Matcher.quoteReplacement(replacement == null ? "" : replacement));
+    }
+
+    /**
+     * Replaces the last occurrence of a search string.
+     */
+    public static String replaceLast(String str, String search, String replacement) {
+        if (str == null || search == null)
+            return str;
+        int lastIndex = str.lastIndexOf(search);
+        if (lastIndex < 0)
+            return str;
+        return str.substring(0, lastIndex) + (replacement == null ? "" : replacement) + str.substring(lastIndex + search.length());
+    }
+
+    /**
+     * Converts a string to title case.
+     */
+    public static String titleCase(String str) {
+        if (isEmpty(str))
+            return str;
+        StringBuilder result = new StringBuilder();
+        boolean capitalizeNext = true;
+        for (char c : str.toCharArray()) {
+            if (Character.isWhitespace(c)) {
+                capitalizeNext = true;
+                result.append(c);
+            } else if (capitalizeNext) {
+                result.append(Character.toUpperCase(c));
+                capitalizeNext = false;
+            } else {
+                result.append(Character.toLowerCase(c));
+            }
+        }
+        return result.toString();
+    }
+
+    /**
+     * Extracts initials from a string (first letter of each word).
+     */
+    public static String initials(String str) {
+        if (isEmpty(str))
+            return str;
+        StringBuilder result = new StringBuilder();
+        for (String word : words(str)) {
+            if (!word.isEmpty()) {
+                result.append(Character.toUpperCase(word.charAt(0)));
+            }
+        }
+        return result.toString();
+    }
+
+    /**
+     * Returns the common prefix of a collection of strings.
+     */
+    public static String commonPrefix(Collection<String> strings) {
+        if (strings == null || strings.isEmpty())
+            return "";
+        String first = strings.iterator().next();
+        if (first == null)
+            return "";
+
+        int prefixLen = first.length();
+        for (String s : strings) {
+            if (s == null)
+                return "";
+            while (prefixLen > 0 && (s.length() < prefixLen || !s.substring(0, prefixLen).equals(first.substring(0, prefixLen)))) {
+                prefixLen--;
+            }
+        }
+        return first.substring(0, prefixLen);
+    }
+
+    /**
+     * Returns the common suffix of a collection of strings.
+     */
+    public static String commonSuffix(Collection<String> strings) {
+        if (strings == null || strings.isEmpty())
+            return "";
+        String first = strings.iterator().next();
+        if (first == null)
+            return "";
+
+        int suffixLen = first.length();
+        for (String s : strings) {
+            if (s == null)
+                return "";
+            while (suffixLen > 0 && (s.length() < suffixLen ||
+                   !s.substring(s.length() - suffixLen).equals(first.substring(first.length() - suffixLen)))) {
+                suffixLen--;
+            }
+        }
+        return first.substring(first.length() - suffixLen);
+    }
+
+    /**
+     * Abbreviates a string to a maximum length, breaking at word boundaries.
+     */
+    public static String abbreviate(String str, int maxLength) {
+        return abbreviate(str, maxLength, "...");
+    }
+
+    /**
+     * Abbreviates a string to a maximum length with a custom suffix.
+     */
+    public static String abbreviate(String str, int maxLength, String suffix) {
+        if (str == null || str.length() <= maxLength)
+            return str;
+        if (maxLength <= suffix.length())
+            return suffix.substring(0, maxLength);
+
+        int targetLen = maxLength - suffix.length();
+        if (targetLen <= 0)
+            return suffix;
+
+        // Try to break at word boundary
+        int breakPoint = str.lastIndexOf(' ', targetLen);
+        if (breakPoint <= 0) {
+            breakPoint = targetLen;
+        }
+        return str.substring(0, breakPoint).trim() + suffix;
+    }
 }

@@ -287,4 +287,298 @@ public interface Files {
             throw new RuntimeException("Error deleting: " + path, e);
         }
     }
+
+    // ==================== New File Operations ====================
+
+    /**
+     * Copies a file to a destination.
+     */
+    public static Path copy(String source, String dest) {
+        return copy(Paths.get(source), Paths.get(dest));
+    }
+
+    /**
+     * Copies a file to a destination.
+     */
+    public static Path copy(Path source, Path dest) {
+        try {
+            return java.nio.file.Files.copy(source, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Error copying file: " + source + " to " + dest, e);
+        }
+    }
+
+    /**
+     * Copies a file with optional overwrite control.
+     */
+    public static Path copy(Path source, Path dest, boolean overwrite) {
+        try {
+            if (overwrite) {
+                return java.nio.file.Files.copy(source, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                return java.nio.file.Files.copy(source, dest);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error copying file: " + source + " to " + dest, e);
+        }
+    }
+
+    /**
+     * Moves a file to a destination.
+     */
+    public static Path move(String source, String dest) {
+        return move(Paths.get(source), Paths.get(dest));
+    }
+
+    /**
+     * Moves a file to a destination.
+     */
+    public static Path move(Path source, Path dest) {
+        try {
+            return java.nio.file.Files.move(source, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Error moving file: " + source + " to " + dest, e);
+        }
+    }
+
+    /**
+     * Recursively deletes a file or directory.
+     */
+    public static void deleteRecursively(String path) {
+        deleteRecursively(Paths.get(path));
+    }
+
+    /**
+     * Recursively deletes a file or directory.
+     */
+    public static void deleteRecursively(Path path) {
+        try {
+            if (java.nio.file.Files.isDirectory(path)) {
+                try (java.util.stream.Stream<Path> walk = java.nio.file.Files.walk(path)) {
+                    walk.sorted(java.util.Comparator.reverseOrder())
+                        .forEach(p -> {
+                            try {
+                                java.nio.file.Files.delete(p);
+                            } catch (IOException e) {
+                                throw new RuntimeException("Error deleting: " + p, e);
+                            }
+                        });
+                }
+            } else {
+                java.nio.file.Files.deleteIfExists(path);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error deleting recursively: " + path, e);
+        }
+    }
+
+    /**
+     * Gets the file extension.
+     */
+    public static String extension(String path) {
+        return extension(Paths.get(path));
+    }
+
+    /**
+     * Gets the file extension.
+     */
+    public static String extension(Path path) {
+        String fileName = path.getFileName().toString();
+        int dotIndex = fileName.lastIndexOf('.');
+        return dotIndex > 0 ? fileName.substring(dotIndex + 1) : "";
+    }
+
+    /**
+     * Gets the base name (filename without extension).
+     */
+    public static String baseName(String path) {
+        return baseName(Paths.get(path));
+    }
+
+    /**
+     * Gets the base name (filename without extension).
+     */
+    public static String baseName(Path path) {
+        String fileName = path.getFileName().toString();
+        int dotIndex = fileName.lastIndexOf('.');
+        return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
+    }
+
+    /**
+     * Gets the file size in bytes.
+     */
+    public static long size(String path) {
+        return size(Paths.get(path));
+    }
+
+    /**
+     * Gets the file size in bytes.
+     */
+    public static long size(Path path) {
+        try {
+            return java.nio.file.Files.size(path);
+        } catch (IOException e) {
+            throw new RuntimeException("Error getting file size: " + path, e);
+        }
+    }
+
+    /**
+     * Creates a file or updates its modification time (like Unix touch).
+     */
+    public static Path touch(String path) {
+        return touch(Paths.get(path));
+    }
+
+    /**
+     * Creates a file or updates its modification time (like Unix touch).
+     */
+    public static Path touch(Path path) {
+        try {
+            if (java.nio.file.Files.exists(path)) {
+                java.nio.file.Files.setLastModifiedTime(path,
+                    java.nio.file.attribute.FileTime.fromMillis(System.currentTimeMillis()));
+            } else {
+                java.nio.file.Files.createFile(path);
+            }
+            return path;
+        } catch (IOException e) {
+            throw new RuntimeException("Error touching file: " + path, e);
+        }
+    }
+
+    /**
+     * Lists files recursively in a directory.
+     */
+    public static List<Path> listFilesRecursively(String path) {
+        return listFilesRecursively(Paths.get(path));
+    }
+
+    /**
+     * Lists files recursively in a directory.
+     */
+    public static List<Path> listFilesRecursively(Path path) {
+        try (java.util.stream.Stream<Path> walk = java.nio.file.Files.walk(path)) {
+            List<Path> result = new ArrayList<>();
+            walk.filter(java.nio.file.Files::isRegularFile).forEach(result::add);
+            return result;
+        } catch (IOException e) {
+            throw new RuntimeException("Error listing files recursively: " + path, e);
+        }
+    }
+
+    /**
+     * Reads bytes from a file.
+     */
+    public static byte[] readBytes(String path) {
+        return readBytes(Paths.get(path));
+    }
+
+    /**
+     * Reads bytes from a file.
+     */
+    public static byte[] readBytes(Path path) {
+        try {
+            return java.nio.file.Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading bytes from file: " + path, e);
+        }
+    }
+
+    /**
+     * Writes bytes to a file.
+     */
+    public static void writeBytes(String path, byte[] bytes) {
+        writeBytes(Paths.get(path), bytes);
+    }
+
+    /**
+     * Writes bytes to a file.
+     */
+    public static void writeBytes(Path path, byte[] bytes) {
+        try {
+            java.nio.file.Files.write(path, bytes);
+        } catch (IOException e) {
+            throw new RuntimeException("Error writing bytes to file: " + path, e);
+        }
+    }
+
+    /**
+     * Gets the parent directory path.
+     */
+    public static Path parent(String path) {
+        return Paths.get(path).getParent();
+    }
+
+    /**
+     * Gets the parent directory path.
+     */
+    public static Path parent(Path path) {
+        return path.getParent();
+    }
+
+    /**
+     * Gets the file name.
+     */
+    public static String fileName(String path) {
+        return Paths.get(path).getFileName().toString();
+    }
+
+    /**
+     * Gets the file name.
+     */
+    public static String fileName(Path path) {
+        return path.getFileName().toString();
+    }
+
+    /**
+     * Checks if a file is readable.
+     */
+    public static boolean isReadable(String path) {
+        return java.nio.file.Files.isReadable(Paths.get(path));
+    }
+
+    /**
+     * Checks if a file is readable.
+     */
+    public static boolean isReadable(Path path) {
+        return java.nio.file.Files.isReadable(path);
+    }
+
+    /**
+     * Checks if a file is writable.
+     */
+    public static boolean isWritable(String path) {
+        return java.nio.file.Files.isWritable(Paths.get(path));
+    }
+
+    /**
+     * Checks if a file is writable.
+     */
+    public static boolean isWritable(Path path) {
+        return java.nio.file.Files.isWritable(path);
+    }
+
+    /**
+     * Checks if a path is empty (file is 0 bytes or directory is empty).
+     */
+    public static boolean isEmpty(String path) {
+        return isEmpty(Paths.get(path));
+    }
+
+    /**
+     * Checks if a path is empty (file is 0 bytes or directory is empty).
+     */
+    public static boolean isEmpty(Path path) {
+        try {
+            if (java.nio.file.Files.isDirectory(path)) {
+                try (java.util.stream.Stream<Path> entries = java.nio.file.Files.list(path)) {
+                    return entries.findFirst().isEmpty();
+                }
+            } else {
+                return java.nio.file.Files.size(path) == 0;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error checking if path is empty: " + path, e);
+        }
+    }
 }

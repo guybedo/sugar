@@ -987,4 +987,195 @@ public interface Collections {
     public static Map map(Map<String, Object> map, String name) {
         return (Map) map.get(name);
     }
+
+    // ==================== New Collection Operations ====================
+
+    /**
+     * Partitions elements into two lists based on a predicate.
+     * First list contains elements matching the predicate, second contains non-matching.
+     */
+    public static <T> Pair<List<T>, List<T>> partition(Collection<T> objs, Predicate<T> predicate) {
+        if (objs == null)
+            return pair(new ArrayList<>(), new ArrayList<>());
+        List<T> matching = new ArrayList<>();
+        List<T> notMatching = new ArrayList<>();
+        for (T obj : objs) {
+            if (predicate.test(obj)) {
+                matching.add(obj);
+            } else {
+                notMatching.add(obj);
+            }
+        }
+        return pair(matching, notMatching);
+    }
+
+    /**
+     * Returns a map of each element to its frequency count.
+     */
+    public static <T> Map<T, Long> frequencies(Collection<T> objs) {
+        if (objs == null)
+            return new HashMap<>();
+        return objs.stream()
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+    }
+
+    /**
+     * Returns the median of a collection of numbers.
+     */
+    public static Double median(Collection<? extends Number> numbers) {
+        if (numbers == null || numbers.isEmpty())
+            return null;
+        List<Double> sorted = numbers.stream()
+            .map(Number::doubleValue)
+            .sorted()
+            .collect(Collectors.toList());
+        int size = sorted.size();
+        if (size % 2 == 0) {
+            return (sorted.get(size / 2 - 1) + sorted.get(size / 2)) / 2.0;
+        } else {
+            return sorted.get(size / 2);
+        }
+    }
+
+    /**
+     * Returns the variance of a collection of numbers.
+     */
+    public static Double variance(Collection<? extends Number> numbers) {
+        if (numbers == null || numbers.size() < 2)
+            return null;
+        double mean = numbers.stream().mapToDouble(Number::doubleValue).average().orElse(0);
+        return numbers.stream()
+            .mapToDouble(n -> Math.pow(n.doubleValue() - mean, 2))
+            .average()
+            .orElse(0);
+    }
+
+    /**
+     * Returns the standard deviation of a collection of numbers.
+     */
+    public static Double stdDev(Collection<? extends Number> numbers) {
+        Double var = variance(numbers);
+        return var == null ? null : Math.sqrt(var);
+    }
+
+    /**
+     * Splits a list at the first element that doesn't match the predicate.
+     * Returns a pair of (prefix matching predicate, rest of list).
+     */
+    public static <T> Pair<List<T>, List<T>> span(List<T> objs, Predicate<T> predicate) {
+        if (objs == null)
+            return pair(new ArrayList<>(), new ArrayList<>());
+        List<T> prefix = takeWhile(objs, predicate);
+        List<T> suffix = drop(objs, prefix.size());
+        return pair(prefix, suffix);
+    }
+
+    /**
+     * Splits a list at the given index.
+     */
+    public static <T> Pair<List<T>, List<T>> splitAt(List<T> objs, int index) {
+        if (objs == null)
+            return pair(new ArrayList<>(), new ArrayList<>());
+        if (index <= 0)
+            return pair(new ArrayList<>(), new ArrayList<>(objs));
+        if (index >= objs.size())
+            return pair(new ArrayList<>(objs), new ArrayList<>());
+        return pair(new ArrayList<>(objs.subList(0, index)), new ArrayList<>(objs.subList(index, objs.size())));
+    }
+
+    /**
+     * Returns the union of two sets.
+     */
+    public static <T> Set<T> union(Set<T> a, Set<T> b) {
+        Set<T> result = new HashSet<>();
+        if (a != null) result.addAll(a);
+        if (b != null) result.addAll(b);
+        return result;
+    }
+
+    /**
+     * Returns elements that are in either set but not both.
+     */
+    public static <T> Set<T> symmetricDifference(Set<T> a, Set<T> b) {
+        Set<T> result = union(a, b);
+        result.removeAll(intersect(a == null ? new HashSet<>() : a, b == null ? new HashSet<>() : b));
+        return result;
+    }
+
+    /**
+     * Returns a list with duplicate elements removed.
+     */
+    public static <T> List<T> distinct(Collection<T> objs) {
+        if (objs == null)
+            return new ArrayList<>();
+        return objs.stream().distinct().collect(Collectors.toList());
+    }
+
+    /**
+     * Returns true if collection contains all specified elements.
+     */
+    public static <T> boolean containsAll(Collection<T> collection, Collection<T> elements) {
+        if (collection == null || elements == null)
+            return false;
+        return collection.containsAll(elements);
+    }
+
+    /**
+     * Returns true if collection contains any of the specified elements.
+     */
+    public static <T> boolean containsAny(Collection<T> collection, Collection<T> elements) {
+        if (collection == null || elements == null)
+            return false;
+        for (T element : elements) {
+            if (collection.contains(element))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if collection contains none of the specified elements.
+     */
+    public static <T> boolean containsNone(Collection<T> collection, Collection<T> elements) {
+        return !containsAny(collection, elements);
+    }
+
+    /**
+     * Returns the element with the minimum value according to the extractor.
+     */
+    public static <T, R extends Comparable<R>> T minBy(Collection<T> objs, Function<T, R> extractor) {
+        return min(objs, extractor);
+    }
+
+    /**
+     * Returns the element with the maximum value according to the extractor.
+     */
+    public static <T, R extends Comparable<R>> T maxBy(Collection<T> objs, Function<T, R> extractor) {
+        return max(objs, extractor);
+    }
+
+    /**
+     * Returns the sum of numbers extracted from a collection.
+     */
+    public static <T> Double sumBy(Collection<T> objs, Function<T, ? extends Number> extractor) {
+        if (objs == null || objs.isEmpty())
+            return 0.0;
+        return objs.stream()
+            .map(extractor)
+            .mapToDouble(Number::doubleValue)
+            .sum();
+    }
+
+    /**
+     * Returns the average of numbers extracted from a collection.
+     */
+    public static <T> Double averageBy(Collection<T> objs, Function<T, ? extends Number> extractor) {
+        if (objs == null || objs.isEmpty())
+            return null;
+        return objs.stream()
+            .map(extractor)
+            .mapToDouble(Number::doubleValue)
+            .average()
+            .orElse(0);
+    }
 }
