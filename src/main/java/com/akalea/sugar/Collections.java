@@ -21,8 +21,329 @@ import java.util.stream.Stream;
 
 import com.akalea.sugar.internal.KeyValue;
 import com.akalea.sugar.internal.Pair;
+import com.akalea.sugar.internal.Tuple3;
+import com.akalea.sugar.internal.Tuple4;
 
 public interface Collections {
+
+    // ==================== Tuple Creation ====================
+
+    public static <T1, T2> Pair<T1, T2> pair(T1 first, T2 second) {
+        return new Pair<T1, T2>().setFirst(first).setSecond(second);
+    }
+
+    public static <T1, T2, T3> Tuple3<T1, T2, T3> tuple(T1 first, T2 second, T3 third) {
+        return new Tuple3<>(first, second, third);
+    }
+
+    public static <T1, T2, T3, T4> Tuple4<T1, T2, T3, T4> tuple(T1 first, T2 second, T3 third, T4 fourth) {
+        return new Tuple4<>(first, second, third, fourth);
+    }
+
+    // ==================== Enhanced Collection Operations ====================
+
+    public static <T, K> List<T> distinctBy(Collection<T> objs, Function<T, K> keyExtractor) {
+        if (objs == null)
+            return new ArrayList<>();
+        Set<K> seen = new HashSet<>();
+        List<T> result = new ArrayList<>();
+        for (T obj : objs) {
+            K key = keyExtractor.apply(obj);
+            if (!seen.contains(key)) {
+                seen.add(key);
+                result.add(obj);
+            }
+        }
+        return result;
+    }
+
+    public static <T> List<T> takeWhile(Collection<T> objs, Predicate<T> predicate) {
+        if (objs == null)
+            return new ArrayList<>();
+        List<T> result = new ArrayList<>();
+        for (T obj : objs) {
+            if (predicate.test(obj)) {
+                result.add(obj);
+            } else {
+                break;
+            }
+        }
+        return result;
+    }
+
+    public static <T> List<T> dropWhile(Collection<T> objs, Predicate<T> predicate) {
+        if (objs == null)
+            return new ArrayList<>();
+        List<T> result = new ArrayList<>();
+        boolean dropping = true;
+        for (T obj : objs) {
+            if (dropping && predicate.test(obj)) {
+                continue;
+            }
+            dropping = false;
+            result.add(obj);
+        }
+        return result;
+    }
+
+    public static <T> List<T> take(List<T> objs, int n) {
+        if (objs == null || n <= 0)
+            return new ArrayList<>();
+        return objs.subList(0, Math.min(n, objs.size()));
+    }
+
+    public static <T> List<T> drop(List<T> objs, int n) {
+        if (objs == null)
+            return new ArrayList<>();
+        if (n >= objs.size())
+            return new ArrayList<>();
+        return objs.subList(n, objs.size());
+    }
+
+    public static <T> List<List<T>> sliding(List<T> objs, int size) {
+        if (objs == null || size <= 0)
+            return new ArrayList<>();
+        List<List<T>> windows = new ArrayList<>();
+        for (int i = 0; i <= objs.size() - size; i++) {
+            windows.add(new ArrayList<>(objs.subList(i, i + size)));
+        }
+        return windows;
+    }
+
+    public static <T> List<List<T>> sliding(List<T> objs, int size, int step) {
+        if (objs == null || size <= 0 || step <= 0)
+            return new ArrayList<>();
+        List<List<T>> windows = new ArrayList<>();
+        for (int i = 0; i <= objs.size() - size; i += step) {
+            windows.add(new ArrayList<>(objs.subList(i, i + size)));
+        }
+        return windows;
+    }
+
+    public static <T, R> List<R> scan(Collection<T> objs, R initial, BiFunction<R, T, R> accumulator) {
+        if (objs == null)
+            return list(initial);
+        List<R> result = new ArrayList<>();
+        result.add(initial);
+        R acc = initial;
+        for (T obj : objs) {
+            acc = accumulator.apply(acc, obj);
+            result.add(acc);
+        }
+        return result;
+    }
+
+    public static <T> List<T> interleave(List<T> l1, List<T> l2) {
+        if (l1 == null && l2 == null)
+            return new ArrayList<>();
+        if (l1 == null)
+            return new ArrayList<>(l2);
+        if (l2 == null)
+            return new ArrayList<>(l1);
+        List<T> result = new ArrayList<>();
+        int maxLen = Math.max(l1.size(), l2.size());
+        for (int i = 0; i < maxLen; i++) {
+            if (i < l1.size())
+                result.add(l1.get(i));
+            if (i < l2.size())
+                result.add(l2.get(i));
+        }
+        return result;
+    }
+
+    public static <T> List<List<T>> transpose(List<List<T>> matrix) {
+        if (matrix == null || matrix.isEmpty())
+            return new ArrayList<>();
+        int rows = matrix.size();
+        int cols = matrix.get(0).size();
+        List<List<T>> transposed = new ArrayList<>();
+        for (int j = 0; j < cols; j++) {
+            List<T> newRow = new ArrayList<>();
+            for (int i = 0; i < rows; i++) {
+                List<T> row = matrix.get(i);
+                newRow.add(j < row.size() ? row.get(j) : null);
+            }
+            transposed.add(newRow);
+        }
+        return transposed;
+    }
+
+    public static <T> List<T> repeat(T value, int times) {
+        List<T> result = new ArrayList<>();
+        for (int i = 0; i < times; i++) {
+            result.add(value);
+        }
+        return result;
+    }
+
+    public static <T> List<T> generate(java.util.function.Supplier<T> supplier, int count) {
+        List<T> result = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            result.add(supplier.get());
+        }
+        return result;
+    }
+
+    public static <T> List<T> iterate(T seed, java.util.function.UnaryOperator<T> f, int count) {
+        List<T> result = new ArrayList<>();
+        T current = seed;
+        for (int i = 0; i < count; i++) {
+            result.add(current);
+            current = f.apply(current);
+        }
+        return result;
+    }
+
+    public static <T1, T2, T3> List<Tuple3<T1, T2, T3>> zip3(List<T1> l1, List<T2> l2, List<T3> l3) {
+        List<Tuple3<T1, T2, T3>> zipped = new ArrayList<>();
+        int size = Math.min(Math.min(l1.size(), l2.size()), l3.size());
+        for (int i = 0; i < size; i++) {
+            zipped.add(new Tuple3<>(l1.get(i), l2.get(i), l3.get(i)));
+        }
+        return zipped;
+    }
+
+    public static <T1, T2> Pair<List<T1>, List<T2>> unzip(List<Pair<T1, T2>> pairs) {
+        List<T1> firsts = new ArrayList<>();
+        List<T2> seconds = new ArrayList<>();
+        for (Pair<T1, T2> pair : pairs) {
+            firsts.add(pair.getFirst());
+            seconds.add(pair.getSecond());
+        }
+        return pair(firsts, seconds);
+    }
+
+    // ==================== Predicate Builders ====================
+
+    @SafeVarargs
+    public static <T> Predicate<T> and(Predicate<T>... predicates) {
+        return t -> {
+            for (Predicate<T> p : predicates) {
+                if (!p.test(t))
+                    return false;
+            }
+            return true;
+        };
+    }
+
+    @SafeVarargs
+    public static <T> Predicate<T> or(Predicate<T>... predicates) {
+        return t -> {
+            for (Predicate<T> p : predicates) {
+                if (p.test(t))
+                    return true;
+            }
+            return false;
+        };
+    }
+
+    public static <T> Predicate<T> not(Predicate<T> predicate) {
+        return t -> !predicate.test(t);
+    }
+
+    // ==================== Comparator Builders ====================
+
+    public static <T, R extends Comparable<R>> Comparator<T> comparing(Function<T, R> keyExtractor) {
+        return (a, b) -> keyExtractor.apply(a).compareTo(keyExtractor.apply(b));
+    }
+
+    public static <T, R extends Comparable<R>> Comparator<T> comparingDesc(Function<T, R> keyExtractor) {
+        return (a, b) -> keyExtractor.apply(b).compareTo(keyExtractor.apply(a));
+    }
+
+    public static <T> Comparator<T> thenBy(Comparator<T> first, Comparator<T> second) {
+        return (a, b) -> {
+            int result = first.compare(a, b);
+            return result != 0 ? result : second.compare(a, b);
+        };
+    }
+
+    public static <T, R extends Comparable<R>> Comparator<T> thenBy(
+            Comparator<T> first,
+            Function<T, R> keyExtractor) {
+        return thenBy(first, comparing(keyExtractor));
+    }
+
+    // ==================== Map Enhancements ====================
+
+    public static <K, V> Map<K, V> merge(Map<K, V> m1, Map<K, V> m2, BiFunction<V, V, V> conflictResolver) {
+        Map<K, V> result = new HashMap<>(m1);
+        for (Map.Entry<K, V> entry : m2.entrySet()) {
+            result.merge(entry.getKey(), entry.getValue(), conflictResolver);
+        }
+        return result;
+    }
+
+    public static <K, V> Map<V, K> invert(Map<K, V> map) {
+        Map<V, K> inverted = new HashMap<>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            inverted.put(entry.getValue(), entry.getKey());
+        }
+        return inverted;
+    }
+
+    public static <K, V, R> Map<R, V> mapKeys(Map<K, V> map, Function<K, R> keyMapper) {
+        Map<R, V> result = new HashMap<>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            result.put(keyMapper.apply(entry.getKey()), entry.getValue());
+        }
+        return result;
+    }
+
+    public static <K, V, R> Map<K, R> mapValues(Map<K, V> map, Function<V, R> valueMapper) {
+        Map<K, R> result = new HashMap<>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            result.put(entry.getKey(), valueMapper.apply(entry.getValue()));
+        }
+        return result;
+    }
+
+    public static <K, V> Map<K, V> filterKeys(Map<K, V> map, Predicate<K> predicate) {
+        Map<K, V> result = new HashMap<>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            if (predicate.test(entry.getKey())) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
+    }
+
+    public static <K, V> Map<K, V> filterValues(Map<K, V> map, Predicate<V> predicate) {
+        Map<K, V> result = new HashMap<>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            if (predicate.test(entry.getValue())) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return result;
+    }
+
+    public static <K, V> V getOrCompute(Map<K, V> map, K key, java.util.function.Supplier<V> supplier) {
+        if (map.containsKey(key)) {
+            return map.get(key);
+        }
+        V value = supplier.get();
+        map.put(key, value);
+        return value;
+    }
+
+    public static <K, V> List<K> keys(Map<K, V> map) {
+        return new ArrayList<>(map.keySet());
+    }
+
+    public static <K, V> List<V> values(Map<K, V> map) {
+        return new ArrayList<>(map.values());
+    }
+
+    public static <K, V> List<KeyValue<K, V>> entries(Map<K, V> map) {
+        List<KeyValue<K, V>> result = new ArrayList<>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            result.add(kv(entry.getKey(), entry.getValue()));
+        }
+        return result;
+    }
+
+    // ==================== Original Methods ====================
 
     public static List<Integer> iRange(int from, int toExclusive) {
         return IntStream
